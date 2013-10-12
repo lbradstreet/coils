@@ -270,3 +270,12 @@
         bob (nn/create {:username "bob"})
         _   (nrl/create amy bob :friend {:source "college"})]
     (println (nrl/incoming-for bob :types [:friend])))
+
+
+
+
+
+(exec-raw
+               ["SELECT * FROM yazz_login_details where user_name = ?"
+                ["zubairq@hotmail.com"]]
+                :results)
