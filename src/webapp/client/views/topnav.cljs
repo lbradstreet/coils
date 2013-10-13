@@ -11,13 +11,14 @@
         [webapp.framework.client.help       :only [help]]
         [webapp.framework.client.eventbus   :only [do-action esb undefine-action]]
         [domina                             :only [ by-id value destroy! ]]
+        [webapp.framework.client.coils      :only [!-fn]]
   )
   (:require-macros
     [cljs.core.async.macros :refer [go alt!]])
   (:use-macros
         [webapp.framework.client.eventbus :only [redefine-action define-action]]
         [webapp.framework.client.coreclient :only [makeit ns-coils defn-html on-click on-mouseover sql]]
-        [webapp.framework.client.interpreter :only [! !! !!!]]
+        [webapp.framework.client.coils :only [!]]
      )
 )
 (ns-coils webapp.client.topnav)
@@ -26,8 +27,10 @@
 
 
 
-
-
+;(! add-to "main-section" "<div>dd</div>")
+;(! clear :body)
+;(define-action "scream"  (js/alert "aaargghh!"))
+;(do-action "scream")
 
 (defn-html top-nav-bar []
         "<a id=logo class=navbar-brand href='#' onclick='webapp.client.topnav.toggledebug();'>Learno.com</a>
