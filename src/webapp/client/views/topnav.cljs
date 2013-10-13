@@ -24,14 +24,23 @@
 
 
 
+
+
+
+
+
 (defn-html top-nav-bar []
-        "<a id=logo class=navbar-brand href='#' onclick='webapp.client.topnav.toggledebug();'>Coils.cc</a>
+        "<a id=logo class=navbar-brand href='#' onclick='webapp.client.topnav.toggledebug();'>Learno.com</a>
                 <ul class='nav navbar-nav'>
                   <li id='home-button' class=active><a href='#'>Home</a></li>
                   <li id='docs-button'><a href='#'>Docs</a></li>
                   <li id='case-studies-button'><a href='#'>Case studies</a></li>
                   <li id='contact-button'><a href='#'>Contact</a></li>
                 </ul>")
+
+
+
+
 
 
 (go
