@@ -29,8 +29,11 @@
 
 ;(! add-to "main-section" "<div>dd</div>")
 ;(! clear :body)
-;(define-action "scream"  (js/alert "aaargghh!"))
-;(do-action "scream")
+;(! define-action "scream"  (js/alert "aaargghh!"))
+;(! do-action "scream")
+
+
+
 
 (defn-html top-nav-bar []
         "<a id=logo class=navbar-brand href='#' onclick='webapp.client.topnav.toggledebug();'>Learno.com</a>
@@ -47,7 +50,7 @@
 
 
 (go
-     (let [server-debug-mode  (<! (remote "get-show-debug"))]
+     (let [server-debug-mode  (<! ( remote "get-show-debug"))]
         (cond
                 (nil? server-debug-mode)
                    (reset! debug-mode {:value false})
@@ -101,7 +104,7 @@
 
               (remove-nav-active)
               (. ($ :#home-button) addClass "active")
-              (do-action "show home page")
+              ( do-action "show home page")
      )
 
 
@@ -110,7 +113,7 @@
 
               (remove-nav-active)
               (. ($ :#docs-button) addClass "active")
-              (do-action "show docs page")
+              ( do-action "show docs page")
      )
 
 
@@ -119,7 +122,7 @@
 
               (remove-nav-active)
               (. ($ :#case-studies-button) addClass "active")
-              (do-action "show case studies view")
+              ( do-action "show case studies view")
      )
 
 
@@ -129,7 +132,7 @@
 
               (remove-nav-active)
               (. ($ :#contact-button) addClass "active")
-              (do-action "show who page")
+              ( do-action "show who page")
      )
 )
 
@@ -139,14 +142,14 @@
 
 
 
-(redefine-action
+( redefine-action
     "show top nav"
     (do
-        (clear "top-left")
-        (add-to "top-left" (top-nav-bar))
+        ( clear "top-left")
+        ( add-to "top-left" (top-nav-bar))
         (add-nav-listeners)
 
-        (do-action "deal with session stuff")
+        ( do-action "deal with session stuff")
 ))
 
 ;(do-action "show top nav")

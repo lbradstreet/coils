@@ -9,20 +9,39 @@
 
 )
 
+(defmacro !macro [ fn-symbol & args ]
+      `(~fn-symbol ~@args))
 
-(defmacro !! [ fn-symbol & args ]
-      `(~fn-symbol
-       ~@args))
+(def macros-list
+  #{
+    "define-action"
+    "defn-html"
+    "redefine-action"
+    "makeit"
+    "ns-coils"
+    "on-click"
+    "on-mouseover"
+    "sql"
+})
+
 
 (defmacro ! [ fn-symbol & args ]
-    `(webapp.framework.client.coils/!-fn
-      ~(!! fn-symbol args)
+    (cond
+      (contains? macros-list  (name fn-symbol)) `(!macro
+                  ~(symbol "webapp.framework.client.coils" (name fn-symbol))  ~@args)
+
+      :else `(webapp.framework.client.coils/!-fn
+                ~(symbol "webapp.framework.client.coils" (name fn-symbol)) ~@args
+             )
      )
  )
 
+;(symbol (name 'webapp.client.topnav/add-to))
 
+(macroexpand '(! sdasd2/add-to "a" "b"))
 
-(macroexpand '(! add-to "a" "b"))
+(macroexpand '(! do-action "b"))
+
 
 
 (macroexpand '(! define-action "scream"  (js/alert "aaargghh!")))
