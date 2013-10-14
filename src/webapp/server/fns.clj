@@ -14,6 +14,8 @@
   (:require [clojurewerkz.neocons.rest.cypher :as cy])
   (:use [webapp-config.settings])
   (:import [java.util.UUID])
+       (:use clojure.pprint)
+
 )
 
 ( try
@@ -279,3 +281,29 @@
                ["SELECT * FROM yazz_login_details where user_name = ?"
                 ["zubairq@hotmail.com"]]
                 :results)
+
+
+(defn db-count-records [table-name]
+    (:count
+     (first
+     (exec-raw
+                   [(str "SELECT count(*) FROM " table-name)
+                    []]
+                    :results)
+    )))
+
+(defn db-table-fields [table-name]
+    (keys
+     (first
+     (exec-raw
+                   [(str "SELECT * FROM " table-name " limit 1")
+                    []]
+                    :results)
+    )))
+
+
+ (db-count-records "learno_tests")
+
+(pprint
+
+ (db-table-fields "learno_tests"))
