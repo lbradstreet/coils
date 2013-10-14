@@ -307,3 +307,9 @@
 (pprint
 
  (db-table-fields "learno_tests"))
+
+(pprint
+(exec-raw
+                   [(str "SELECT name,rating FROM learno_tests limit 100")
+                    []]
+                    :results))
