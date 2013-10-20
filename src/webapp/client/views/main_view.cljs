@@ -3,20 +3,23 @@
     (:require
         [cljs.reader :as reader]
         [crate.core :as crate]
-    )
-    (:require-macros
-        [cljs.core.async.macros :refer [go alt!]])
+        [cljs.core.async :as async :refer         [chan close!]]
 
+    )
     (:use
-        [webapp.framework.client.coreclient :only [ header-text body-text body-html make-sidebar swap-section sql el clear addto remote  add-to]]
+        [webapp.framework.client.coreclient :only [sql-fn header-text body-text body-html make-sidebar swap-section sql el clear addto remote  add-to]]
         [jayq.core                          :only [$ css  append fade-out fade-in empty]]
         [webapp.framework.client.help       :only [help]]
         [webapp.framework.client.eventbus   :only [do-action esb undefine-action]]
         [webapp.framework.client.interpreter :only [!fn]]
     )
+    (:require-macros
+       [cljs.core.async.macros :refer                 [go alt!]]
+    )
+
     (:use-macros
         [webapp.framework.client.eventbus :only [define-action]]
-        [webapp.framework.client.coreclient :only [makeit ns-coils defn-html  on-click on-mouseover]]
+        [webapp.framework.client.coreclient :only [sql makeit ns-coils defn-html  on-click on-mouseover]]
         [webapp.framework.client.interpreter :only [! !! !!!]]
      )
 )
@@ -24,14 +27,34 @@
 
 
 
+(def tests (atom []))
 
+
+  (go
+        (reset! tests  (<! (sql "SELECT name FROM learno_tests limit 10" [] )))
+
+  )
+
+(count @tests)
+(do-action "show home page")
+
+(defn make-html-list [ items field ]
+  (el :ul {:text ""} (into []
+                   (map (fn[x] (str "<li>"  (get x field) "</li>")) items)
+                  )
+  )
+)
 
 
 (defn-html homepage-html []
   (el :div {} [
-        (header-text "Clojure on Coils" )
-        (body-text "Java/Clojure web development without the pain")
-]))
+        (el :div {:text (str "Tests:" (count @tests))})
+        (make-html-list  @tests  :name)
+               ])
+)
+
+
+;(homepage-html)
 
 (defn-html what-html []
   (el :div {} [
@@ -112,7 +135,7 @@
 
 (defn-html sidebar []
   (make-sidebar
-       {:text "Main" :html (homepage-html)}
+       {:text "Main" :html-fn homepage-html}
        {:text "What" :html (what-html)}
        {:text "Why" :html (why-html)}
        {:text "Technologies" :html (technologies-html)}
@@ -149,4 +172,8 @@
 )
 
 
-
+(comment pprint
+(exec-raw
+                   [(str "SELECT name,rating FROM learno_tests limit 100")
+                    []]
+                    :results))
