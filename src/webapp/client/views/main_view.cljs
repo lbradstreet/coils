@@ -4,6 +4,7 @@
         [cljs.reader :as reader]
         [crate.core :as crate]
         [cljs.core.async :as async :refer [chan close!]]
+        [webapp.framework.client.neo4j :as neo4j]
         ;[google.maps]
         ;[google.maps.MapTypeId]
     )
@@ -20,7 +21,8 @@
     )
     (:use-macros
         [webapp.framework.client.eventbus :only [define-action redefine-action]]
-        [webapp.framework.client.coreclient :only [makeit ns-coils defn-html on-click on-mouseover sql]]
+        [webapp.framework.client.coreclient :only [makeit ns-coils defn-html on-click on-mouseover sql
+                                                   log log-async]]
         [webapp.framework.client.interpreter :only [! !! !!!]]
      )
 )
@@ -93,15 +95,18 @@
 
 (redefine-action
  "show home page"
-   (let [map-id   "map-canvas"]
+   (let [map-id   "map-canvas"
+         x 12.575183
+         y 55.622033
+         ]
        (clear :#main-section)
        (swap-section
             ($ :#main-section)
             (map-html map-id)
             #(let [
                 map-options  {
-                                 :zoom 8
-                                 :center (google.maps.LatLng. -34.397, 150.644)
+                                 :zoom 14
+                                 :center (google.maps.LatLng.  y x)
                                  :mapTypeId google.maps.MapTypeId.ROADMAP
                              }
                ]
@@ -137,6 +142,55 @@
 
                                      (. js/document getElementById map-id)
                                      (clj-to-js  map-options)))
+
+
+ (go
+   (let [
+        places  (into [] (<! (neo4j/find-names-within-distance   "ore2"  x  y  100)))
+        ]
+  (doall (map (fn[x]
+
+         (log x)
+         (let
+  [
+      marker   (google.maps.Marker.
+                  (clj->js
+                    {
+                        :position (google.maps.LatLng. 55.622033 12.575183
+          )
+                        :map       @the-map
+                        :title     "Hello World!"
+                    }
+                  )
+               )
+  ]
+  marker
+))
+ places
+))))
+
+
+                         (google.maps.event.addListener
+                            @the-map
+                            "click"
+                            (fn [event]
+                              (go
+                                (let [
+                                    lat-lng      (.-latLng event)
+                                    lat          (.lat lat-lng)
+                                    lng          (.lng lat-lng)
+                                    ]
+                                ;(js/alert (str lat "-" lng))
+                                  (<! (neo4j/add-to-simple-point-layer
+                                    {:name "bella centre" :x lng :y lat} "ore2")))
+
+
+
+                                  )
+
+                              )
+                          )
+
                    )
                  )
 
@@ -161,3 +215,12 @@
 
 
 
+
+
+
+ (comment go
+(let [places
+      (into [] (<! (neo4j/find-names-within-distance   "ore2"  12.575183  55.622033  100)))
+      ]
+  (doall (map (fn[x] (log x)) places))
+  ))

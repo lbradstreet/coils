@@ -5,6 +5,7 @@
         [webapp.client.session]
         [webapp.framework.client.debugger-3d]
         [goog.net.cookies :as cookie]
+        [webapp.framework.client.neo4j]
     )
     (:use
         [webapp.framework.client.eventbus  :only [do-action esb]]

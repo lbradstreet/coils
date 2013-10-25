@@ -163,6 +163,7 @@
 
 
 
+
 (defn find-names-within-distance [  layer-name x y km ]
     (go
         (<! (remote "!find-names-within-distance"   {:layer-name layer-name :x x :y y :dist-km km}))
@@ -170,5 +171,5 @@
 )
 
 
-(go
+(comment go
      (log (<! (find-names-within-distance   "ore2"  0   0  1000))) )
