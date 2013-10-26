@@ -157,7 +157,7 @@
 )
 
 
-(go
+(comment go
      (<! (add-to-simple-point-layer {:name "bella centre" :x 0.12 :y 0.1} "ore2")))
 
 
