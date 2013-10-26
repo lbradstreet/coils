@@ -89,7 +89,37 @@
 
 
 
+(defn update-places []
+  (go
+;   (. @the-map clear)
+   (let [
+        places  (into [] (<! (neo4j/find-names-within-distance   "ore2"
+                                                                 (.lng (. @the-map getCenter))
+                                                                 (.lat (. @the-map getCenter))
+                                                                 100)))
+        ]
+  (doall (map (fn[x]
 
+         (log x)
+         (let
+  [
+      marker   (google.maps.Marker.
+                  (clj->js
+                    {
+                        :position (google.maps.LatLng. (:y x) (:x x)
+          )
+                        :map       @the-map
+                        :title     (:name x)
+                    }
+                  )
+               )
+  ]
+  marker
+))
+ places
+))))
+
+)
 
 
 
@@ -108,6 +138,14 @@
                                  :zoom 14
                                  :center (google.maps.LatLng.  y x)
                                  :mapTypeId google.maps.MapTypeId.ROADMAP
+                                 :styles [
+                                          {
+                                              :featureType "poi"
+                                              :stylers [
+                                                { :visibility "off" }
+                                              ]
+                                          }
+                                         ]
                              }
                ]
                (do
@@ -144,30 +182,8 @@
                                      (clj-to-js  map-options)))
 
 
- (go
-   (let [
-        places  (into [] (<! (neo4j/find-names-within-distance   "ore2"  x  y  100)))
-        ]
-  (doall (map (fn[x]
 
-         (log x)
-         (let
-  [
-      marker   (google.maps.Marker.
-                  (clj->js
-                    {
-                        :position (google.maps.LatLng. 55.622033 12.575183
-          )
-                        :map       @the-map
-                        :title     "Hello World!"
-                    }
-                  )
-               )
-  ]
-  marker
-))
- places
-))))
+                     (update-places)
 
 
                          (google.maps.event.addListener
@@ -184,9 +200,12 @@
                                   (<! (neo4j/add-to-simple-point-layer
                                     {:name "bella centre" :x lng :y lat} "ore2")))
 
+                               (update-places)
 
 
-                                  )
+
+
+                               )
 
                               )
                           )
