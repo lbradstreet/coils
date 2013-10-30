@@ -26,8 +26,11 @@
         [webapp.framework.client.interpreter :only [! !! !!!]]
      )
 )
-
 (ns-coils 'webapp.client.main-view)
+
+
+
+
 
 
 (defn-html map-html [map-id]
@@ -129,9 +132,9 @@
          x 12.575183
          y 55.622033
          ]
-       (clear :#main-section)
+       (clear :#main)
        (swap-section
-            ($ :#main-section)
+            ($ :#main)
             (map-html map-id)
             #(let [
                 map-options  {
@@ -146,6 +149,12 @@
                                               ]
                                           }
                                          ]
+                                :panControl false
+                                :zoomControl false
+                                :mapTypeControl false
+                                :scaleControl false
+                                :streetViewControl false
+                                :overviewMapControl false
                              }
                ]
                (do
@@ -218,10 +227,6 @@
                  map-options))
             )
 
-           (swap-section
-            ($ :#left-navigation)
-            (sidebar)
-       )
      []
 
 

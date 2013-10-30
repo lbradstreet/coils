@@ -20,6 +20,10 @@
 (ns-coils 'webapp.client.page-structure)
 
 
+
+
+
+
 (defn top-structure-html []
 
   (el :div {:style "position:absolute; top:0px; left:0px; height:50px; right:0px;overflow:hidden;"
