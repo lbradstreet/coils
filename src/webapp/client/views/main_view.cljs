@@ -125,6 +125,24 @@
 )
 
 
+(defn show-center-square []
+  (add-to "main"
+        (str
+            "<div"
+            "    style='"
+            "           left:        calc(50% - 2em);"
+            "           top:         calc(50% - 3.5em);"
+            "           position:    absolute;"
+            "           z-index:     400;"
+            "           height:      4em;"
+            "           width:       4em;"
+            "           border:      2px dotted black;"
+            "'>"
+            "</div>"
+         )
+  )
+)
+(show-center-square)
 
 (redefine-action
  "show home page"
@@ -191,6 +209,38 @@
                                      (clj-to-js  map-options)))
 
 
+                     (let  [
+                            control-div (el :div {:text "hello"})
+                            control-content (el :div {:text "content"})
+                           ]
+                             (comment add-to
+                                control-div
+                                control-content
+                              )
+
+                              ( .push
+                               (get
+                                (js->clj
+                                (.-controls @the-map)
+                                ) google.maps.ControlPosition.TOP_RIGHT)
+                               (el "div" {:id "top-right" :text "some"})
+                               )
+
+
+                       ( google.maps.event.addListener
+                        @the-map
+                        "bounds_changed"
+                        (fn []
+                          (show-center-square)
+                          (comment if (find-el "top-right")
+                            (do-action "show login signup panel")
+
+                            )
+                          )
+                        )
+                     )
+
+
 
                      (update-places)
 
@@ -207,9 +257,11 @@
                                     ]
                                 ;(js/alert (str lat "-" lng))
                                   (<! (neo4j/add-to-simple-point-layer
-                                    {:name "bella centre" :x lng :y lat} "ore2")))
+                                    {:name "bella centre" :x lng :y lat} "ore2"))
+                                 (. @the-map  panTo (google.maps.LatLng. lat lng))
+                                 (update-places)
+                                )
 
-                               (update-places)
 
 
 
@@ -227,6 +279,8 @@
                  map-options))
             )
 
+
+
      []
 
 
@@ -234,9 +288,7 @@
 ))
 
 
-
-
-
+;(. @the-map  panTo (google.maps.LatLng. 0 0))
 
 
 
