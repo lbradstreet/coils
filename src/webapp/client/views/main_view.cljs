@@ -13,43 +13,20 @@
     [cljs.core.async.macros :refer [go alt!]])
 
   (:use
-        [webapp.framework.client.coreclient :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn header-text body-text body-html make-sidebar  swap-section  el clear addto remote  add-to]]
-        [jayq.core                          :only [attr $ css append fade-out fade-in empty]]
-        [webapp.framework.client.help       :only [help]]
-        [webapp.framework.client.eventbus   :only [do-action esb undefine-action]]
+        [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn header-text body-text body-html make-sidebar  swap-section  el clear addto remote  add-to]]
+        [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
+        [webapp.framework.client.help        :only [help]]
+        [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.framework.client.interpreter :only [!fn]]
     )
     (:use-macros
-        [webapp.framework.client.eventbus :only [define-action redefine-action]]
-        [webapp.framework.client.coreclient :only [makeit ns-coils defn-html on-click on-mouseover sql
+        [webapp.framework.client.eventbus    :only [define-action redefine-action]]
+        [webapp.framework.client.coreclient  :only [makeit ns-coils defn-html on-click on-mouseover sql
                                                    log log-async]]
         [webapp.framework.client.interpreter :only [! !! !!!]]
      )
 )
 (ns-coils 'webapp.client.main-view)
-
-
-
-
-
-
-(defn-html map-html [map-id]
-    (el :div {:id "map-content" :data-role "content"
-              :style "position: absolute;
-                      width: 100% !important;
-                      height: 100% !important;
-                      padding: 0 !important;
-                      top : 0px !important;
-                      bottom : 0px !important;
-                      right : 0px !important;
-                      left : 0px !important;"
-              :target "_blank"} [
-
-
-
-]))
-
-
 
 (def the-map (atom nil))
 
@@ -57,60 +34,75 @@
 
 
 
+(defn-html map-html [map-id]
+    (el :div {:id        map-id
+              :data-role "content"
+              :style     "position: absolute;
+                          width:    100% !important;
+                          height:   100% !important;
+                          padding:  0 !important;
+                          top:      0px !important;
+                          bottom:   0px !important;
+                          right:    0px !important;
+                          left:     0px !important;"
+              :target    "_blank"} [
+]))
 
-(defn hide-map []
-   (add-to "main" "map-canvas")
 
+
+
+
+
+
+
+
+(defn move-google-map-to-hidden-element []
+   (add-to "main" "map-content")
    (css
-       ($ (find-el "map-canvas"))
+       ($ (find-el "map-content"))
         {:visibility "hidden"}
    )
-
    (css
-       ($ (find-el "map-canvas"))
+       ($ (find-el "map-content"))
        {:display "none"}
    )
 )
-
-
 
 (defmethod do-before-remove-element
     "map-content"
     [elem]
         (.log js/console (str "Hiding map '" (attr ($ (find-el elem)) "id") "'") )
-        (hide-map)
-  )
-
-
-(defn-html sidebar []
-  (el :div {} [
-    (make-sidebar
-         {:text "Examples" :html (map-html "map-canvas")}
-     )
-])
+        (move-google-map-to-hidden-element)
 )
+
+
+
+
+
+
 
 
 
 (defn update-places []
   (go
-;   (. @the-map clear)
+   ;(. @the-map clear)
    (let [
-        places  (into [] (<! (neo4j/find-names-within-distance   "ore2"
-                                                                 (.lng (. @the-map getCenter))
-                                                                 (.lat (. @the-map getCenter))
-                                                                 100)))
+        places
+         (into []
+               (<! (neo4j/find-names-within-distance
+                    "ore2"
+                    (.lng (. @the-map getCenter))
+                    (.lat (. @the-map getCenter))
+                    100)))
         ]
-  (doall (map (fn[x]
-
+      (doall (map (fn[x]
          (log x)
          (let
-  [
-      marker   (google.maps.Marker.
-                  (clj->js
-                    {
-                        :position (google.maps.LatLng. (:y x) (:x x)
-          )
+         [
+           marker   (google.maps.Marker.
+                      (clj->js
+                      {
+                        :position (google.maps.LatLng. (:y x) (:x x))
                         :map       @the-map
                         :title     (:name x)
                     }
@@ -123,6 +115,10 @@
 ))))
 
 )
+
+
+
+
 
 
 (defn show-center-square []
@@ -142,78 +138,72 @@
          )
   )
 )
-(show-center-square)
+;(show-center-square)
+
+
+(defn add-place []
+  ( do
+    (clear "bottom")
+    (add-to
+     "bottom"
+     "<div style='width: 200px; height: 120px;
+                  background-color: white;
+     opacity:0.6;
+                  margin: 10px; border: 10px;'>
+     dadasd
+     </div>")
+  )
+)
+
 
 (redefine-action
  "show home page"
-   (let [map-id   "map-canvas"
-         x 12.575183
-         y 55.622033
+   (let [
+         map-id   "map-content"
+         x        12.575183
+         y        55.622033
          ]
-       (clear :#main)
-       (swap-section
+         (clear :#main)
+         (swap-section
             ($ :#main)
             (map-html map-id)
             #(let [
-                map-options  {
-                                 :zoom 14
-                                 :center (google.maps.LatLng.  y x)
-                                 :mapTypeId google.maps.MapTypeId.ROADMAP
-                                 :styles [
-                                          {
-                                              :featureType "poi"
-                                              :stylers [
-                                                { :visibility "off" }
-                                              ]
-                                          }
-                                         ]
-                                :panControl false
-                                :zoomControl false
-                                :mapTypeControl false
-                                :scaleControl false
-                                :streetViewControl false
-                                :overviewMapControl false
-                             }
+                map-options
+                   {
+                    :zoom               14
+                    :center             (google.maps.LatLng.  y x)
+                    :mapTypeId          google.maps.MapTypeId.ROADMAP
+                    :styles
+                    [
+                     {
+                      :featureType "poi"
+                      :stylers     [{ :visibility "off" }]
+                      }
+                     ]
+                    :panControl         false
+                    :zoomControl        false
+                    :mapTypeControl     false
+                    :scaleControl       false
+                    :streetViewControl  false
+                    :overviewMapControl false
+                    }
                ]
                (do
-                 (if @the-map
+                 (if (not @the-map)
                    (do
-                        (add-to "map-content" "map-canvas")
-
-                         (css
-                             ($ (find-el "map-canvas"))
-                              {:visibility ""}
-                         )
-
-                         (css
-                             ($ (find-el "map-canvas"))
-                             {:display ""}
-                         )
-                   )
-
-                   (do
-
-                        (add-to
-                         "map-content"
-                         (el :div {:id map-id
-                                  :style "width: 100% !important;
-                                          height: 100% !important;
-                                          "
-                                  :target "_blank"} [
-
-                          ]))
-
-                         (reset! the-map (google.maps.Map.
-
-                                     (. js/document getElementById map-id)
-                                     (clj-to-js  map-options)))
+                     (reset!
+                        the-map
+                        (google.maps.Map.
+                          (. js/document getElementById map-id)
+                          (clj-to-js  map-options)))
 
 
-                     (let  [
-                            control-div (el :div {:text "hello"})
-                            control-content (el :div {:text "content"})
-                           ]
-                             (comment add-to
+                      (let
+                        [
+                         control-div     (el :div {:text "hello"})
+                         control-content (el :div {:text "content"})
+                         ]
+                         (add-to
                                 control-div
                                 control-content
                               )
@@ -225,6 +215,15 @@
                                 ) google.maps.ControlPosition.TOP_RIGHT)
                                (el "div" {:id "top-right" :text "some"})
                                )
+
+                                                    ( .push
+                               (get
+                                (js->clj
+                                (.-controls @the-map)
+                                ) google.maps.ControlPosition.BOTTOM_CENTER)
+                               (el "div" {:id "bottom" :text "some"})
+                               )
+
 
 
                        ( google.maps.event.addListener
@@ -262,6 +261,8 @@
                                  (update-places)
                                 )
 
+                                (add-place)
+
 
 
 
@@ -289,8 +290,6 @@
 
 
 ;(. @the-map  panTo (google.maps.LatLng. 0 0))
-
-
 
 
 
