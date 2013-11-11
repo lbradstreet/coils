@@ -19,7 +19,6 @@
                    [org.clojure/core.async "0.1.0-SNAPSHOT"]
                    [rewrite-clj "0.2.0"]
                    [org.jasypt/jasypt "1.8"]
-
                    [clj-http "0.7.6"]
                    [cheshire "4.0.3"]
                 ]

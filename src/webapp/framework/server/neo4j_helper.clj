@@ -1,21 +1,15 @@
 (ns webapp.framework.server.neo4j-helper
 
   [:require [clojure.string :as str]]
-  [:use [korma.db]]
-  [:use [webapp.framework.server.email-service]]
-  [:use [webapp.framework.server.encrypt]]
-  [:use [korma.core]]
-  [:use [clojure.core.async]]
-  [:use [clojure.repl]]
-  [:use [webapp.framework.server.db-helper]]
-
   (:require [clojurewerkz.neocons.rest :as nr])
   (:require [clojurewerkz.neocons.rest.nodes :as nn])
   (:require [clojurewerkz.neocons.rest.relationships :as nrl])
   (:require [clojurewerkz.neocons.rest.cypher :as cy])
   (:require [clojurewerkz.neocons.rest.spatial :as nsp])
+  (:require [clojurewerkz.neocons.rest.transaction :as tx])
   (:use [webapp-config.settings])
   (:import [java.util.UUID])
+
   (:require [cheshire.core             :as json]
             [clojurewerkz.neocons.rest :as rest]
             [clojurewerkz.support.http.statuses :refer :all]
@@ -118,7 +112,7 @@
    lname "y" "x"))
 
 
-;(add-simple-point-layer "ore2")
+
 
 
 
@@ -177,13 +171,26 @@
         }
       )
     )
+
     (find-within-distance layer x y dist-km)
   )
 )
 
-;(find-names-within-distance "ore2" -10.1 -1.1 10000.1)
+
+(find-names-within-distance "ore2" -10.1 -1.1 10000.1)
 
 
+
+
+( let [t (tx/begin-tx)]
+
+
+  (tx/commit t))
+
+
+(try
+     (add-simple-point-layer "ore2")
+         (catch Exception e (str "caught exception: " (.getMessage e))))
 
 
 
