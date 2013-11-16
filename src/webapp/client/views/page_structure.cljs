@@ -7,14 +7,11 @@
     (:use
         [webapp.framework.client.coreclient :only [sql el clear addto remote  add-to]]
         [jayq.core                          :only [$ css  append fade-out fade-in empty]]
-        [webapp.framework.client.help       :only [help]]
         [webapp.framework.client.eventbus   :only [do-action esb undefine-action]]
-        [webapp.framework.client.interpreter :only [!fn]]
     )
     (:use-macros
         [webapp.framework.client.eventbus :only [redefine-action]]
-        [webapp.framework.client.coreclient :only [makeit ns-coils on-click on-mouseover]]
-        [webapp.framework.client.interpreter :only [! !! !!!]]
+        [webapp.framework.client.coreclient :only [ns-coils on-click on-mouseover]]
      )
 )
 (ns-coils 'webapp.client.page-structure)

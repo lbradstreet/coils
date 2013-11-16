@@ -13,17 +13,15 @@
     [cljs.core.async.macros :refer [go alt!]])
 
   (:use
-        [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn header-text body-text body-html make-sidebar  swap-section  el clear addto remote  add-to]]
+        [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
+                                                    header-text body-text
+                                                    body-html make-sidebar swap-section  el clear remote  add-to]]
         [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
-        [webapp.framework.client.help        :only [help]]
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
-        [webapp.framework.client.interpreter :only [!fn]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
-        [webapp.framework.client.coreclient  :only [makeit ns-coils defn-html on-click on-mouseover sql
-                                                   log log-async]]
-        [webapp.framework.client.interpreter :only [! !! !!!]]
+        [webapp.framework.client.coreclient  :only [ns-coils defn-html on-click on-mouseover sql log]]
      )
 )
 (ns-coils 'webapp.client.main-view)

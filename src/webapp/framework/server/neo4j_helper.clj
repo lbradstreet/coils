@@ -177,18 +177,18 @@
 )
 
 
-(find-names-within-distance "ore2" -10.1 -1.1 10000.1)
+(comment find-names-within-distance "ore2" -10.1 -1.1 10000.1)
 
 
 
 
-( let [t (tx/begin-tx)]
+(comment  let [t (tx/begin-tx)]
 
 
   (tx/commit t))
 
 
-(try
+(comment try
      (add-simple-point-layer "ore2")
          (catch Exception e (str "caught exception: " (.getMessage e))))
 

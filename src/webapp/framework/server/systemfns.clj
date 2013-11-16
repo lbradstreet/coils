@@ -42,19 +42,6 @@
 
 
 
-
-
-
-
-
-
-
-(try
- (nr/connect! "http://localhost:7474/db/data/")
-
-     (catch Exception e (str "Could not connect to Neo4j: " (.getMessage e))))
-
-
 (defn !neo4j [{coded-cypher :cypher params :params}]
   (do
     (let [cypher          (decrypt coded-cypher)
