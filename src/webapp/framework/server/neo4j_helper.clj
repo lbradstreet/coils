@@ -188,7 +188,7 @@
   (tx/commit t))
 
 
-(comment try
+( try
      (add-simple-point-layer "ore2")
          (catch Exception e (str "caught exception: " (.getMessage e))))
 
