@@ -15,7 +15,8 @@
   (:use
         [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
                                                     header-text body-text
-                                                    body-html make-sidebar swap-section  el clear remote  add-to]]
+                                                    body-html make-sidebar swap-section  el clear remote
+                                                    value-of add-to show-popover]]
         [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
     )
@@ -139,20 +140,60 @@
 ;(show-center-square)
 
 
-(defn add-place []
+(defn add-place [& {:keys [place-id]}]
   ( do
-    (clear "bottom")
+    (js/alert place-id)
+    (clear "bottom-left")
     (add-to
-     "bottom"
-     "<div style='width: 200px; height: 120px;
-                  background-color: white;
-     opacity:0.6;
-                  margin: 10px; border: 10px;'>
-     dadasd
-     </div>")
+     "bottom-left"
+     (el :div {
+               :style "width: 200px; height: 120px;
+                       background-color: white;
+                       opacity:0.6;
+                       margin: 10px; border: 10px;"
+               }
+
+         [
+             (el :div {:class "form-group"} [
+              "<input  id='place-name-input' type='text' class='input-small form-control'
+                                           placeholder='Name of place'>"
+              ])
+
+          (el :button {
+                       :id       "reset-password-button"
+                       :type     "button"
+                       :class    "btn btn-primary"
+                       :style    "margin-left: 10px;"
+                       :text     "Add place"
+                       :onclick  #(do-action "Add place name"
+                                             {
+                                                :place-name (value-of "place-name-input")
+                                              })})
+
+          (el :button {
+                       :type "button"
+                       :class "btn btn-info"
+                       :style "margin-left: 10px;"
+                       :text "Cancel"
+                       :onclick #(do-action "Cancel add place")})
+
+        ])
+    )
   )
 )
+;(add-place :place-id 1)
 
+
+
+(redefine-action
+ "Add place name"
+    (if (= (count (message :place-name)) 0)
+       (show-popover "place-name-input"
+                     "Place name cannot be empty"
+                     {:placement "top"})
+    )
+
+ )
 
 (redefine-action
  "show home page"
@@ -214,12 +255,19 @@
                                (el "div" {:id "top-right" :text "some"})
                                )
 
-                                                    ( .push
-                               (get
-                                (js->clj
-                                (.-controls @the-map)
-                                ) google.maps.ControlPosition.BOTTOM_CENTER)
-                               (el "div" {:id "bottom" :text "some"})
+                               ( .push
+                                 (get
+                                  (js->clj
+                                  (.-controls @the-map)
+                                  ) google.maps.ControlPosition.BOTTOM_CENTER)
+                                 (el "div" {:id "bottom"})
+                               )
+                               ( .push
+                                 (get
+                                  (js->clj
+                                  (.-controls @the-map)
+                                  ) google.maps.ControlPosition.BOTTOM_LEFT)
+                                 (el "div" {:id "bottom-left"})
                                )
 
 
@@ -248,18 +296,19 @@
                             (fn [event]
                               (go
                                 (let [
-                                    lat-lng      (.-latLng event)
-                                    lat          (.lat lat-lng)
-                                    lng          (.lng lat-lng)
+                                      lat-lng      (.-latLng event)
+                                      lat          (.lat lat-lng)
+                                      lng          (.lng lat-lng)
+                                      place-id     (<! (neo4j/add-to-simple-point-layer
+                                                    {:name "Unnamed" :x lng :y lat} "ore2"))
                                     ]
-                                ;(js/alert (str lat "-" lng))
-                                  (<! (neo4j/add-to-simple-point-layer
-                                    {:name "bella centre" :x lng :y lat} "ore2"))
-                                 (. @the-map  panTo (google.maps.LatLng. lat lng))
-                                 (update-places)
+                                    ;(js/alert (str lat "-" lng))
+
+                                    (. @the-map  panTo (google.maps.LatLng. lat lng))
+                                    (update-places)
+                                    (add-place :place-id place-id)
                                 )
 
-                                (add-place)
 
 
 
@@ -285,6 +334,8 @@
 
 
 ))
+
+
 
 
 ;(. @the-map  panTo (google.maps.LatLng. 0 0))
