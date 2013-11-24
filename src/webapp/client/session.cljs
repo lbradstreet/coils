@@ -10,7 +10,7 @@
         [jayq.core                          :only [$ css  append fade-out fade-in empty]]
         [webapp.framework.client.help       :only [help]]
         [webapp.framework.client.eventbus   :only [do-action esb undefine-action]]
-        [domina                             :only [ by-id value destroy! ]]
+        [domina                             :only [by-id value destroy! ]]
   )
   (:require-macros
     [cljs.core.async.macros :refer [go alt!]])
@@ -29,6 +29,7 @@
 
 
 (def current-user (atom nil))
+(def the-map (atom nil))
 
 ;@current-user
 

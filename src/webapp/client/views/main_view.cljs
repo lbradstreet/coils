@@ -1,12 +1,10 @@
-(ns webapp.client.main-view
+(ns webapp.client.views.main-view
  (:refer-clojure :exclude [val empty remove find next parents])
     (:require
-        [cljs.reader :as reader]
-        [crate.core :as crate]
-        [cljs.core.async :as async :refer [chan close!]]
-        [webapp.framework.client.neo4j :as neo4j]
-        ;[google.maps]
-        ;[google.maps.MapTypeId]
+        [cljs.reader                     :as reader]
+        [crate.core                      :as crate]
+        [cljs.core.async                 :as async :refer [chan close!]]
+        [webapp.framework.client.neo4j   :as neo4j]
     )
 
   (:require-macros
@@ -19,33 +17,16 @@
                                                     value-of add-to show-popover]]
         [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
+        [webapp.client.session               :only [the-map]]
+        [webapp.client.views.html            :only [map-html]]
+        [webapp.client.views.spatial         :only []]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
         [webapp.framework.client.coreclient  :only [ns-coils defn-html on-click on-mouseover sql log]]
      )
 )
-(ns-coils 'webapp.client.main-view)
-
-(def the-map (atom nil))
-
-
-
-
-
-(defn-html map-html [map-id]
-    (el :div {:id        map-id
-              :data-role "content"
-              :style     "position: absolute;
-                          width:    100% !important;
-                          height:   100% !important;
-                          padding:  0 !important;
-                          top:      0px !important;
-                          bottom:   0px !important;
-                          right:    0px !important;
-                          left:     0px !important;"
-              :target    "_blank"} [
-]))
+(ns-coils 'webapp.client.views.main-view)
 
 
 
@@ -55,145 +36,9 @@
 
 
 
-(defn move-google-map-to-hidden-element []
-   (add-to "main" "map-content")
-   (css
-       ($ (find-el "map-content"))
-        {:visibility "hidden"}
-   )
-   (css
-       ($ (find-el "map-content"))
-       {:display "none"}
-   )
-)
-
-(defmethod do-before-remove-element
-    "map-content"
-    [elem]
-        (.log js/console (str "Hiding map '" (attr ($ (find-el elem)) "id") "'") )
-        (move-google-map-to-hidden-element)
-)
 
 
 
-
-
-
-
-
-
-(defn update-places []
-  (go
-   ;(. @the-map clear)
-   (let [
-        places
-         (into []
-               (<! (neo4j/find-names-within-distance
-                    "ore2"
-                    (.lng (. @the-map getCenter))
-                    (.lat (. @the-map getCenter))
-                    100)))
-        ]
-      (doall (map (fn[x]
-         (log x)
-         (let
-         [
-           marker   (google.maps.Marker.
-                      (clj->js
-                      {
-                        :position (google.maps.LatLng. (:y x) (:x x))
-                        :map       @the-map
-                        :title     (:name x)
-                    }
-                  )
-               )
-  ]
-  marker
-))
- places
-))))
-
-)
-
-
-
-
-
-
-(defn show-center-square []
-  (add-to "main"
-        (str
-            "<div"
-            "    style='"
-            "           left:        calc(50% - 2em);"
-            "           top:         calc(50% - 3.5em);"
-            "           position:    absolute;"
-            "           z-index:     400;"
-            "           height:      4em;"
-            "           width:       4em;"
-            "           border:      2px dotted black;"
-            "'>"
-            "</div>"
-         )
-  )
-)
-;(show-center-square)
-
-
-(defn add-place [& {:keys [place-id]}]
-  ( do
-    (js/alert place-id)
-    (clear "bottom-left")
-    (add-to
-     "bottom-left"
-     (el :div {
-               :style "width: 200px; height: 120px;
-                       background-color: white;
-                       opacity:0.6;
-                       margin: 10px; border: 10px;"
-               }
-
-         [
-             (el :div {:class "form-group"} [
-              "<input  id='place-name-input' type='text' class='input-small form-control'
-                                           placeholder='Name of place'>"
-              ])
-
-          (el :button {
-                       :id       "reset-password-button"
-                       :type     "button"
-                       :class    "btn btn-primary"
-                       :style    "margin-left: 10px;"
-                       :text     "Add place"
-                       :onclick  #(do-action "Add place name"
-                                             {
-                                                :place-name (value-of "place-name-input")
-                                              })})
-
-          (el :button {
-                       :type "button"
-                       :class "btn btn-info"
-                       :style "margin-left: 10px;"
-                       :text "Cancel"
-                       :onclick #(do-action "Cancel add place")})
-
-        ])
-    )
-  )
-)
-;(add-place :place-id 1)
-
-
-
-(redefine-action
- "Add place name"
-    (if (= (count (message :place-name)) 0)
-       (show-popover "place-name-input"
-                     "Place name cannot be empty"
-                     {:placement "top"})
-    )
-
- )
 
 (redefine-action
  "show home page"
@@ -276,7 +121,7 @@
                         @the-map
                         "bounds_changed"
                         (fn []
-                          (show-center-square)
+                          (do-action "show center square")
                           (comment if (find-el "top-right")
                             (do-action "show login signup panel")
 
@@ -287,7 +132,7 @@
 
 
 
-                     (update-places)
+                     (do-action "update-places")
 
 
                          (google.maps.event.addListener
@@ -305,8 +150,9 @@
                                     ;(js/alert (str lat "-" lng))
 
                                     (. @the-map  panTo (google.maps.LatLng. lat lng))
-                                    (update-places)
-                                    (add-place :place-id place-id)
+                                    (do-action "update-places")
+                                    (do-action "add place"
+                                               {:place-id place-id})
                                 )
 
 
@@ -337,14 +183,3 @@
 
 
 
-
-;(. @the-map  panTo (google.maps.LatLng. 0 0))
-
-
-
- (comment go
-(let [places
-      (into [] (<! (neo4j/find-names-within-distance   "ore2"  12.575183  55.622033  100)))
-      ]
-  (doall (map (fn[x] (log x)) places))
-  ))
