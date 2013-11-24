@@ -30,8 +30,8 @@
 
 
 
-(defn london     [] (google.maps.LatLng. 51.5072 0.1275))
-(defn copenhagen [] (google.maps.LatLng. 55.622033 12.575183))
+(def london     {:lat 51.5072     :lon 0.1275})
+(def copenhagen {:lat 55.622033   :lon 12.575183})
 
 
 ;(. @the-map  panTo (london))

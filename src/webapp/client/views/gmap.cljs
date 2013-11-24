@@ -33,6 +33,99 @@
 
 
 
+(defn map-options [x y]
+                   {
+                    :zoom               14
+                    :center             (google.maps.LatLng.  y x)
+                    :mapTypeId          google.maps.MapTypeId.ROADMAP
+                    :styles
+                    [
+                     {
+                      :featureType "poi"
+                      :stylers     [{ :visibility "off" }]
+                      }
+                     ]
+                    :panControl         false
+                    :zoomControl        false
+                    :mapTypeControl     false
+                    :scaleControl       false
+                    :streetViewControl  false
+                    :overviewMapControl false
+                    })
 
 
 
+
+
+(redefine-action "add map left click event"
+    (google.maps.event.addListener
+     @the-map
+     "click"
+     (fn [event]
+       (go
+        (let [
+              lat-lng      (.-latLng event)
+              lat          (.lat lat-lng)
+              lng          (.lng lat-lng)
+              place-id     (<! (neo4j/add-to-simple-point-layer
+                                {:name "Unnamed" :x lng :y lat} "ore2"))
+              ]
+          ;(js/alert (str lat "-" lng))
+
+          (. @the-map  panTo (google.maps.LatLng. lat lng))
+          (do-action "update-places")
+          (do-action "add place"
+                     {:place-id place-id})
+          )))))
+
+
+
+
+(redefine-action "add corners"
+                 (let
+                        [
+                         control-div     (el :div {:text "hello"})
+                         control-content (el :div {:text "content"})
+                         ]
+                         (add-to
+                                control-div
+                                control-content
+                              )
+
+                              ( .push
+                               (get
+                                (js->clj
+                                (.-controls @the-map)
+                                ) google.maps.ControlPosition.TOP_RIGHT)
+                               (el "div" {:id "top-right" :text "some"})
+                               )
+
+                               ( .push
+                                 (get
+                                  (js->clj
+                                  (.-controls @the-map)
+                                  ) google.maps.ControlPosition.BOTTOM_CENTER)
+                                 (el "div" {:id "bottom"})
+                               )
+                               ( .push
+                                 (get
+                                  (js->clj
+                                  (.-controls @the-map)
+                                  ) google.maps.ControlPosition.BOTTOM_LEFT)
+                                 (el "div" {:id "bottom-left"})
+                               )
+
+
+
+                       ( google.maps.event.addListener
+                        @the-map
+                        "bounds_changed"
+                        (fn []
+                          (do-action "show center square")
+                          (comment if (find-el "top-right")
+                            (do-action "show login signup panel")
+
+                            )
+                          )
+                        )
+                     ))

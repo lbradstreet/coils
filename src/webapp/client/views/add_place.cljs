@@ -62,7 +62,7 @@
 
 (redefine-action "add place"
   (let [place-id   (message :place-id)]
-    (js/alert place-id)
+    ;(js/alert place-id)
     (clear "bottom-left")
     (add-to
      "bottom-left"
