@@ -28,15 +28,17 @@
 (ns-coils 'webapp.client.views.markers)
 
 
+(def markers (atom []))
 
+@markers
 
+(define-action "clear markers"
+   (dorun
+    (map (fn[marker] (. marker setMap nil)) @markers))
+)
+;(do-action "clear markers")
 
-
-
-
-
-
-(define-action "update-places"
+(define-action "update places"
   (go
    ;(. @the-map clear)
    (let [
@@ -48,6 +50,7 @@
                     (.lat (. @the-map getCenter))
                     100)))
         ]
+      (do-action "clear markers")
       (doall (map (fn[x]
          (log x)
          (let
@@ -62,6 +65,7 @@
                   )
                )
   ]
+  (swap! markers conj marker)
   marker
 ))
  places

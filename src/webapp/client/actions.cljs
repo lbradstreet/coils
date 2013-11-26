@@ -13,5 +13,5 @@
 ;(do-action "add place") ;
 ;(do-action "show center square") ;
 ;(do-action "show home page") ; shows the map - can only be called once
-;(do-action "update-places") ;shows the markers on the map
+;(do-action "update places") ;shows the markers on the map
 

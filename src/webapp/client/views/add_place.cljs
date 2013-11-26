@@ -19,6 +19,8 @@
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
+        [webapp.client.views.spatial         :only [copenhagen london]]
+        [webapp.client.views.markers         :only [markers]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -38,13 +40,29 @@
 
 
 (redefine-action
- "Add place name"
-    (if (= (count (message :place-name)) 0)
-       (show-popover "place-name-input"
-                     "Place name cannot be empty"
-                     {:placement "top"})
-    )
+ "add place name"
+   (go
+     (let [
+           lat         (message :lat)
+           lng         (message :lng)
+           place-name  (message :place-name)
+          ]
 
+        (if (= (count (message :place-name)) 0)
+         (show-popover "place-name-input"
+                       "Place name cannot be empty"
+                       {:placement "top"})
+
+        (do
+             (<! (neo4j/add-to-simple-point-layer
+                   {:name place-name :x lng :y lat} "ore2"))
+             (do-action "update places")
+             (clear "bottom-left")
+         )
+
+      )
+    )
+   )
  )
 
 
@@ -55,17 +73,37 @@
 
 
 
+(redefine-action
+ "Cancel add place"
+  (do
+   (do-action "update places")
+   (clear "bottom-left")
+  )
+ )
+
+
 
 
 
 
 
 (redefine-action "add place"
-  (let [place-id   (message :place-id)]
-    ;(js/alert place-id)
-    (clear "bottom-left")
+  (let [
+           element    (message :element)
+           lat        (message :lat)
+           lng        (message :lng)
+           marker     (google.maps.Marker.
+                      (clj->js
+                      {
+                        :position (google.maps.LatLng. lat lng)
+                        :map       @the-map
+                        :title     (:name "")
+                    }))
+       ]
+    (clear   element)
+
     (add-to
-     "bottom-left"
+     element
      (el :div {
                :style "width: 200px; height: 120px;
                        background-color: white;
@@ -75,19 +113,23 @@
 
          [
              (el :div {:class "form-group"} [
-              "<input  id='place-name-input' type='text' class='input-small form-control'
-                                           placeholder='Name of place'>"
+              "<input  id='place-name-input'
+                       type='text'
+                       class='input-small form-control'
+                       placeholder='Name of place'>"
               ])
 
           (el :button {
-                       :id       "reset-password-button"
+                       :id       "add-place-button"
                        :type     "button"
                        :class    "btn btn-primary"
                        :style    "margin-left: 10px;"
                        :text     "Add place"
-                       :onclick  #(do-action "Add place name"
+                       :onclick  #(do-action "add place name"
                                              {
                                                 :place-name (value-of "place-name-input")
+                                                :lat        lat
+                                                :lng        lng
                                               })})
 
           (el :button {
@@ -99,6 +141,9 @@
 
         ])
     )
+    (swap! markers conj marker)
+    marker
   )
 )
-;(add-place :place-id 1)
+;(clear "bottom-left")
+;(do-action "add place"    {:place-id 1    :element  "bottom-left"})

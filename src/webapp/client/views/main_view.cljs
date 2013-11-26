@@ -66,7 +66,7 @@
 
 
                       (do-action "add corners")
-                     (do-action "update-places")
+                     (do-action "update places")
                      (do-action "add map left click event")
 ))))))
 

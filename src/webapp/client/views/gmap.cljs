@@ -59,24 +59,21 @@
 
 (redefine-action "add map left click event"
     (google.maps.event.addListener
-     @the-map
-     "click"
-     (fn [event]
-       (go
-        (let [
-              lat-lng      (.-latLng event)
-              lat          (.lat lat-lng)
-              lng          (.lng lat-lng)
-              place-id     (<! (neo4j/add-to-simple-point-layer
-                                {:name "Unnamed" :x lng :y lat} "ore2"))
-              ]
-          ;(js/alert (str lat "-" lng))
-
-          (. @the-map  panTo (google.maps.LatLng. lat lng))
-          (do-action "update-places")
-          (do-action "add place"
-                     {:place-id place-id})
-          )))))
+       @the-map
+       "click"
+       (fn [event]
+           (go
+               (let [
+                     lat-lng      (.-latLng event)
+                     lat          (.lat lat-lng)
+                     lng          (.lng lat-lng)
+                    ]
+                    (. @the-map  panTo (google.maps.LatLng. lat lng))
+                    (do-action "add place"
+                               {:lat        lat
+                                :lng        lng
+                                :element    "bottom-left"})
+)))))
 
 
 
