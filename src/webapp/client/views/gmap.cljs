@@ -20,6 +20,8 @@
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only []]
+        [webapp.client.views.markers         :only [find-places-in-square]]
+
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -111,18 +113,19 @@
                                   ) google.maps.ControlPosition.BOTTOM_LEFT)
                                  (el "div" {:id "bottom-left"})
                                )
+                     ))
 
 
 
-                       ( google.maps.event.addListener
+(redefine-action "add bounds changed event"
+       ( google.maps.event.addListener
                         @the-map
                         "bounds_changed"
                         (fn []
                           (do-action "show center square")
-                          (comment if (find-el "top-right")
-                            (do-action "show login signup panel")
-
-                            )
+                          (find-places-in-square)
                           )
-                        )
-                     ))
+                        ))
+
+
+

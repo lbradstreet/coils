@@ -45,7 +45,7 @@
  "show home page"
    (let [
          map-element-id   "map-content"
-         place            london
+         place            copenhagen
          x                (:lon place)
          y                (:lat place)
          ]
@@ -65,9 +65,10 @@
                           (clj-to-js  (map-options x y))))
 
 
-                      (do-action "add corners")
+                     (do-action "add corners")
                      (do-action "update places")
                      (do-action "add map left click event")
+                     (do-action "add bounds changed event")
 ))))))
 
 

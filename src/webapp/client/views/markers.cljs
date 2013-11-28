@@ -69,6 +69,39 @@
   marker
 ))
  places
-))))
+)))))
 
-)
+
+
+
+
+
+
+
+(defn find-places-in-square []
+  (go
+    (let [
+           places
+             (into []
+               (<! (neo4j/find-names-within-distance
+                    "ore2"
+                    (.lng (. @the-map getCenter))
+                    (.lat (. @the-map getCenter))
+                    0.2)))
+        ]
+      (if (> (count places) 0)
+          (do
+            (clear "bottom-left")
+            (add-to "bottom-left"
+                    (el :div {
+                         :style "width: 200px; height: 120px;
+                                 background-color: white;
+                                 opacity:0.6;
+                                 margin: 10px; border: 10px;"
+                         } [
+                    (str "<h2><strong>"
+                         (:name (first places))
+                         "</strong></h2>")]))
+           )
+      )
+)))
