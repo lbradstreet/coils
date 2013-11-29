@@ -35,7 +35,11 @@
 
 
 
+
+
+;----------------------------------------------------------------------------------------
 (defn map-options [x y]
+;----------------------------------------------------------------------------------------
                    {
                     :zoom               14
                     :center             (google.maps.LatLng.  y x)
@@ -59,7 +63,12 @@
 
 
 
+
+
+
+;----------------------------------------------------------------------------------------
 (redefine-action "add map left click event"
+;----------------------------------------------------------------------------------------
     (google.maps.event.addListener
        @the-map
        "click"
@@ -80,7 +89,28 @@
 
 
 
+
+
+
+;----------------------------------------------------------------------------------------
+(defn add-corner [& {:keys [id position html]}]
+;----------------------------------------------------------------------------------------
+    ( .push
+                               (get
+                                (js->clj
+                                (.-controls @the-map)
+                                ) position)
+                               (el "div" {:id id } [
+                                                    (if html html "<div></div>")
+                                                    ])))
+
+
+
+
+
+;----------------------------------------------------------------------------------------
 (redefine-action "add corners"
+;----------------------------------------------------------------------------------------
                  (let
                         [
                          control-div     (el :div {:text "hello"})
@@ -88,42 +118,44 @@
                          ]
                          (add-to
                                 control-div
-                                control-content
-                              )
+                                control-content)
 
-                              ( .push
-                               (get
-                                (js->clj
-                                (.-controls @the-map)
-                                ) google.maps.ControlPosition.TOP_RIGHT)
-                               (el "div" {:id "top-right" :text "some"})
-                               )
+                              (add-corner :position   google.maps.ControlPosition.TOP_RIGHT
+                                          :id         "top-right")
 
-                               ( .push
-                                 (get
-                                  (js->clj
-                                  (.-controls @the-map)
-                                  ) google.maps.ControlPosition.BOTTOM_CENTER)
-                                 (el "div" {:id "bottom"})
-                               )
-                               ( .push
-                                 (get
-                                  (js->clj
-                                  (.-controls @the-map)
-                                  ) google.maps.ControlPosition.BOTTOM_LEFT)
-                                 (el "div" {:id "bottom-left"})
-                               )
-                     ))
+                              (add-corner :position   google.maps.ControlPosition.BOTTOM_CENTER
+                                          :id         "bottom")
+
+                              (add-corner :position   google.maps.ControlPosition.BOTTOM_LEFT
+                                          :id         "bottom-left")
+
+                              (add-corner :position   google.maps.ControlPosition.TOP_LEFT
+                                          :id         "top-left"
+                                          :html       (el :div {
+                                                               :style "width: 100%; height: 100%;
+                                                                       background-color: white;
+                                                                       opacity:0.6;
+                                                                       margin: 10px; border: 10px;"
+                                                               }
+                                                          [
+                                                              "<h1>Drag the map</h1>"
+                                                          ]
+                                                      ))
+))
 
 
 
+
+;----------------------------------------------------------------------------------------
 (redefine-action "add bounds changed event"
+;----------------------------------------------------------------------------------------
        ( google.maps.event.addListener
                         @the-map
                         "bounds_changed"
                         (fn []
                           (do-action "show center square")
                           (find-places-in-square)
+                          (clear "top-left")
                           )
                         ))
 

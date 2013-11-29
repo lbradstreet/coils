@@ -40,9 +40,9 @@
 
 
 
-
-(redefine-action
- "show home page"
+;-------------------------------------------------------
+(redefine-action "show home page"
+;-------------------------------------------------------
    (let [
          map-element-id   "map-content"
          place            copenhagen

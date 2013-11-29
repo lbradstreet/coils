@@ -58,8 +58,11 @@
 ;(show-center-square)
 
 
+;                     (do-action "add default stuff to map")
 
 
+
+;(add-to (find-el "top-left") "<div>dfsfs</div>")
 
 
 
