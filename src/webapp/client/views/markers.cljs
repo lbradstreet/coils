@@ -32,10 +32,23 @@
 
 @markers
 
+
+(defn colored-marker [color] (google.maps.MarkerImage.
+ (str "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" color)
+        (google.maps.Size. 21 34)
+        (google.maps.Point. 0 0)
+        (google.maps.Point. 10 34)))
+
+(defn red-marker [] (colored-marker "FE7569"))
+(defn blue-marker [] (colored-marker "FE75FF"))
+(defn green-marker [] (colored-marker "FEFF69"))
+
 (define-action "clear markers"
    (dorun
     (map (fn[marker] (. marker setMap nil)) @markers))
 )
+
+
 ;(do-action "clear markers")
 
 (define-action "update places"
@@ -60,7 +73,8 @@
                       {
                         :position (google.maps.LatLng. (:y x) (:x x))
                         :map       @the-map
-                        :title     (:name x)
+                        :title    (:name x)
+                        :icon     (red-marker)
                     }
                   )
                )

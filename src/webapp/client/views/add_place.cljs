@@ -20,7 +20,7 @@
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only [copenhagen london]]
-        [webapp.client.views.markers         :only [markers]]
+        [webapp.client.views.markers         :only [markers red-marker blue-marker green-marker]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -98,6 +98,7 @@
                         :position (google.maps.LatLng. lat lng)
                         :map       @the-map
                         :title     (:name "")
+                        :icon      (green-marker)
                     }))
        ]
     (clear   element)
