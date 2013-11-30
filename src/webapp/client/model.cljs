@@ -19,6 +19,7 @@
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
+        [webapp.client.views.spatial         :only [copenhagen london]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -37,4 +38,33 @@
 
 ;(js->clj (:marker (first @markers)))
 
+
+
+
+;-------------------------------------------------------
+(redefine-action "load places"
+;-------------------------------------------------------
+  (go
+    (let [
+        x          (message :x)
+        y          (message :y)
+        places     (<! (neo4j/find-names-within-distance
+                            "ore2"
+                            x
+                            y
+                            1.2))
+        ]
+        (do
+          (log "Number of places: " (count places))
+          (log "First place: " (first places))
+        )
+
+   )
+  )
+)
+(do-action "load places"
+           {
+             :x    (copenhagen :lon)
+             :y    (copenhagen :lat)
+           })
 
