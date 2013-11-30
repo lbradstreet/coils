@@ -165,6 +165,7 @@
     (fn [x]
       (let [data    (:data x)]
         {
+          :id    (:id x)
           :name (:name data)
           :x    (:x data)
           :y    (:y data)
@@ -177,7 +178,7 @@
 )
 
 
-(comment find-names-within-distance "ore2" -10.1 -1.1 10000.1)
+;( find-names-within-distance "ore2" -10.1 -1.1 10000.1)
 
 
 

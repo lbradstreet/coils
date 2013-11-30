@@ -1,6 +1,7 @@
 (ns webapp.client.main
     (:require
         [webapp.client.session]
+        [webapp.client.model]
         [webapp.client.views.main-view]
         [webapp.client.views.gmap]
         [webapp.client.views.loginpanel]

@@ -27,13 +27,19 @@
 )
 (ns-coils 'webapp.client.views.markers)
 
+;-------------------------------------------------------
+(def markers
+;-------------------------------------------------------
+  (atom []))
 
-(def markers (atom []))
-
-@markers
+;(js->clj (:marker (first @markers)))
 
 
+
+
+;-------------------------------------------------------
 (defn colored-marker [color] (google.maps.MarkerImage.
+;-------------------------------------------------------
  (str "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" color)
         (google.maps.Size. 21 34)
         (google.maps.Point. 0 0)
@@ -43,15 +49,68 @@
 (defn blue-marker [] (colored-marker "FE75FF"))
 (defn green-marker [] (colored-marker "FEFF69"))
 
-(define-action "clear markers"
-   (dorun
-    (map (fn[marker] (. marker setMap nil)) @markers))
-)
 
+
+
+
+
+
+;-------------------------------------------------------
+(redefine-action "color marker"
+;-------------------------------------------------------
+  (let [
+        id (message :id)
+        ]
+   (dorun
+    (map
+         (fn[place]
+           (do
+             (log (str "marker x:" id))
+             (if (= (:id place) id)
+               (do
+                 (comment . (:marker place) setMap nil)
+                 (comment let
+                     [
+                          marker   (google.maps.Marker.
+                                        (clj->js
+                                          {
+                                            :position (google.maps.LatLng. (:y place) (:x place))
+                                            :map       @the-map
+                                            :title    (:name place)
+                                            :icon     (blue-marker)
+                                          }))
+                      ]
+                      (swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
+                      marker
+                      )
+                 ))))
+
+         @markers))
+))
+
+
+
+
+
+;-------------------------------------------------------
+(redefine-action "clear markers"
+;-------------------------------------------------------
+   (dorun
+    (map (fn[marker]
+           (. (:marker marker) setMap nil)
+           ) @markers))
+)
 
 ;(do-action "clear markers")
 
+
+
+
+
+
+;-------------------------------------------------------
 (define-action "update places"
+;-------------------------------------------------------
   (go
    ;(. @the-map clear)
    (let [
@@ -64,26 +123,28 @@
                     100)))
         ]
       (do-action "clear markers")
-      (doall (map (fn[x]
-         (log x)
-         (let
-         [
-           marker   (google.maps.Marker.
-                      (clj->js
-                      {
-                        :position (google.maps.LatLng. (:y x) (:x x))
-                        :map       @the-map
-                        :title    (:name x)
-                        :icon     (red-marker)
-                    }
-                  )
-               )
-  ]
-  (swap! markers conj marker)
-  marker
-))
- places
-)))))
+      (doall
+             (map
+                 (fn[x]
+                     (log x)
+                     (let
+                     [
+                          marker   (google.maps.Marker.
+                                        (clj->js
+                                          {
+                                            :position (google.maps.LatLng. (:y x) (:x x))
+                                            :map       @the-map
+                                            :title    (:name x)
+                                            :icon     (red-marker)
+                                          }))
+                      ]
+                      (swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
+                      marker
+                      ))
+
+                 places
+             )
+))))
 
 
 
@@ -92,30 +153,30 @@
 
 
 
+;-------------------------------------------------------
 (defn find-places-in-square []
+;-------------------------------------------------------
   (go
     (let [
-           places
-             (into []
-               (<! (neo4j/find-names-within-distance
-                    "ore2"
-                    (.lng (. @the-map getCenter))
-                    (.lat (. @the-map getCenter))
-                    0.2)))
-        ]
-      (if (> (count places) 0)
-          (do
-            (clear "bottom-left")
-            (add-to "bottom-left"
+           places    (into []
+                       (<! (neo4j/find-names-within-distance
+                            "ore2"
+                            (.lng (. @the-map getCenter))
+                            (.lat (. @the-map getCenter))
+                            0.2)))
+         ]
+         (if (> (count places) 0)
+           (do
+             (clear "bottom-left")
+             (add-to "bottom-left"
                     (el :div {
                          :style "width: 200px; height: 120px;
                                  background-color: white;
                                  opacity:0.6;
                                  margin: 10px; border: 10px;"
                          } [
-                    (str "<h2><strong>"
-                         (:name (first places))
-                         "</strong></h2>")]))
-           )
-      )
-)))
+                            (str "<h2><strong>"
+                                 (:name (first places))
+                                 "</strong></h2>")]))
+            ;(do-action "color marker" {:id (:id (first places))})
+)))))

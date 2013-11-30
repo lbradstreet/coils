@@ -38,9 +38,9 @@
 
 
 
-
-(redefine-action
- "add place name"
+;---------------------------------------------------------------
+(redefine-action "add place name"
+;---------------------------------------------------------------
    (go
      (let [
            lat         (message :lat)
@@ -142,7 +142,7 @@
 
         ])
     )
-    (swap! markers conj marker)
+    (swap! markers conj {:marker marker :x lng :y lat})
     marker
   )
 )
