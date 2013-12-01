@@ -36,8 +36,8 @@
 ;-------------------------------------------------------
   (atom {}))
 
-;(js->clj (:marker (first @markers)))
-
+;@places
+;(reset! places {})
 
 
 
@@ -46,23 +46,38 @@
 ;-------------------------------------------------------
   (go
     (let [
-        x          (message :x)
-        y          (message :y)
-        places     (<! (neo4j/find-names-within-distance
-                            "ore2"
-                            x
-                            y
-                            1.2))
+        x                      (message :x)
+        y                      (message :y)
+        places-from-server     (<! (neo4j/find-names-within-distance
+                                      "ore2"
+                                      x
+                                      y
+                                      1.2))
         ]
         (do
-          (log "Number of places: " (count places))
-          (log "First place: " (first places))
+          (log "Number of places: " (count places-from-server))
+          (log "First place: " (first places-from-server))
+          (dorun
+           (map
+              (fn[place-from-server]
+                 (let [
+                           id-of-place-from-server   (:id place-from-server)
+                           place-in-model            (get    @places   id-of-place-from-server)
+                       ]
+                       (if place-in-model
+                         (log place-in-model)
+                         (swap! places
+                                assoc   id-of-place-from-server   place-from-server))
+                 )
+              )
+              places-from-server
+          ))
         )
 
    )
   )
 )
-(do-action "load places"
+(comment do-action "load places"
            {
              :x    (copenhagen :lon)
              :y    (copenhagen :lat)

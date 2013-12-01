@@ -14,7 +14,8 @@
         [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
                                                     header-text body-text
                                                     body-html make-sidebar swap-section  el clear remote
-                                                    value-of add-to show-popover]]
+                                                    value-of add-to show-popover
+                                                    is-debug?]]
         [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
@@ -34,18 +35,65 @@
 
 
 
+(defn get-start-location []
+     (let
+     [
+        ch            (chan 1)
+        ]
+        (if (.-geolocation js/navigator )
+             (. (.-geolocation js/navigator ) getCurrentPosition
+                (fn[p]
+                      (go
+                         (>! ch {:lat (.-latitude (.-coords p)) :lon (.-longitude (.-coords p))})
+                         (close! ch)
+                      )
+                )
+
+                 (fn [] (do
+                          (js/alert "location denied, using Copenhagen")
+                          (go
+                             (>! ch copenhagen)
+                             (close! ch)
+                          )
+                        )
+                 )
+              )
+
+             (go
+                (>! ch copenhagen)
+                (close! ch)
+             )
+        )
+       ch
+     )
+
+  )
+
+
+(comment  go
+
+  (log (str (<! (is-debug?))))
+
+ )
 
 
 
+(comment  go
+
+  (log (str (<! (get-start-location))))
+
+ )
 
 
 
 ;-------------------------------------------------------
 (redefine-action "show home page"
 ;-------------------------------------------------------
+(go
    (let [
          map-element-id   "map-content"
-         place            copenhagen
+         debug-mode       (<! (is-debug?))
+         place            (if (not (= debug-mode "prod")) copenhagen (<! (get-start-location)))
          x                (:lon place)
          y                (:lat place)
          ]
@@ -69,7 +117,8 @@
                      (do-action "update places")
                      (do-action "add map left click event")
                      (do-action "add bounds changed event")
-))))))
+)))))))
+
 
 
 
