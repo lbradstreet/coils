@@ -38,12 +38,12 @@
 
 
 ;-------------------------------------------------------
-(defn colored-marker [color] (google.maps.MarkerImage.
+(defn colored-marker [color]
 ;-------------------------------------------------------
- (str "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" color)
-        (google.maps.Size. 21 34)
-        (google.maps.Point. 0 0)
-        (google.maps.Point. 10 34)))
+    {
+     :url (str "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" color)
+     :size (google.maps.Size. 20 30)
+     }  )
 
 (defn red-marker [] (colored-marker "FE7569"))
 (defn blue-marker [] (colored-marker "FE75FF"))
@@ -77,12 +77,16 @@
                                             :position (google.maps.LatLng. (:y place) (:x place))
                                             :map       @the-map
                                             :title    (:name place)
-                                            :icon     (blue-marker)
+                                            icon: {
+                                                   url: ""
+                                                   size: (google.maps.Size. 10 10)
+                                            }
                                           }))
                       ]
                       (swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
                       marker
                       )
+                   []
                  ))))
 
          @markers))
@@ -109,7 +113,7 @@
 
 
 ;-------------------------------------------------------
-(define-action "update places"
+(redefine-action "update places"
 ;-------------------------------------------------------
   (go
    ;(. @the-map clear)
@@ -135,7 +139,7 @@
                                             :position (google.maps.LatLng. (:y x) (:x x))
                                             :map       @the-map
                                             :title    (:name x)
-                                            :icon     (red-marker)
+                                            :icon  (red-marker)
                                           }))
                       ]
                       (swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})

@@ -4,6 +4,7 @@
         [webapp.client.model]
         [webapp.client.views.main-view]
         [webapp.client.views.gmap]
+        [webapp.client.views.html]
         [webapp.client.views.loginpanel]
         [webapp.client.views.markers]
         [webapp.client.views.add-place]
