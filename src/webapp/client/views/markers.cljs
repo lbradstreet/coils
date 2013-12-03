@@ -19,6 +19,7 @@
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
+        [webapp.client.views.spatial         :only [copenhagen]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -151,9 +152,17 @@
 ))))
 
 
-
-
-
+(comment js/MarkerWithLabel.
+    (clj->js
+    {
+          :labelContent        "Test"
+          :position            (google.maps.LatLng.  (copenhagen :lat)  (copenhagen :lon))
+          :map                 @the-map
+          :labelStyle          {:opacity      0.75
+                                :font-size    24}
+          :labelClass "labels"
+        })
+ )
 
 
 
