@@ -73,6 +73,7 @@
               )
               places-from-server
           ))
+          (do-action "update places")
         )
 
    )
