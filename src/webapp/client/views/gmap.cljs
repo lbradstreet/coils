@@ -149,15 +149,19 @@
 ;----------------------------------------------------------------------------------------
 (redefine-action "add bounds changed event"
 ;----------------------------------------------------------------------------------------
+    (go
        ( google.maps.event.addListener
                         @the-map
                         "bounds_changed"
                         (fn []
+                          (do-action "update places")
+
                           (do-action "show center square")
                           (find-places-in-square)
                           (clear "top-left")
                           )
-                        ))
+                        )))
 
 
 
+;(do-action "update places")

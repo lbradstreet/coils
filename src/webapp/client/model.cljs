@@ -36,9 +36,10 @@
 ;-------------------------------------------------------
   (atom {}))
 
+;(first @places)
 ;@places
 ;(reset! places {})
-
+;(do-action "load places" {:x    (copenhagen :lon)    :y    (copenhagen :lat)})
 
 
 ;-------------------------------------------------------
@@ -77,9 +78,34 @@
    )
   )
 )
-(comment do-action "load places"
-           {
-             :x    (copenhagen :lon)
-             :y    (copenhagen :lat)
-           })
+
+;(second  (first @places))
+
+
+(defn find-places-in-bounds [this-map]
+  (let [
+        bounds    (. this-map getBounds)
+        ]
+             (select-keys
+                @places
+                (for [[place-id place-details] @places :when
+                  (let [
+                        place-coordinates    (google.maps.LatLng.
+                                              (:y place-details)
+                                              (:x place-details)
+                                              )
+                        ]
+                    (if (. bounds contains place-coordinates)
+                      true
+                      )
+                    )] place-id
+                  )
+              )
+
+
+  )
+
+)
+
+;(count (find-places-in-bounds @the-map))
 

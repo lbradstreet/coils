@@ -92,7 +92,7 @@
 (go
    (let [
          map-element-id   "map-content"
-         debug-mode       (<! (is-debug?))
+         debug-mode       (:value (<! (is-debug?)))
          place            (if (not (= debug-mode "prod")) copenhagen (<! (get-start-location)))
          x                (:lon place)
          y                (:lat place)
@@ -114,11 +114,11 @@
 
 
                      (do-action "add corners")
-                     (do-action "update places")
+                     (do-action "load places" {:x x   :y y})
                      (do-action "add map left click event")
                      (do-action "add bounds changed event")
+                     (do-action "update places")
 )))))))
 
 
-
-
+;(do-action "load places")

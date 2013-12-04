@@ -43,13 +43,13 @@
         (str
             "<div"
             "    style='"
-            "           left:        calc(50% - 2em);"
-            "           top:         calc(50% - 3.5em);"
+            "           left:        calc(50% - 1em);"
+            "           top:         calc(50% - 1.75em);"
             "           position:    absolute;"
             "           z-index:     400;"
-            "           height:      4em;"
-            "           width:       4em;"
-            "           border:      2px dotted black;"
+            "           height:      2em;"
+            "           width:       2em;"
+            "           border:      1px dotted black;"
             "'>"
             "</div>"
          )

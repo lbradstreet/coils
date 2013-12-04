@@ -20,6 +20,7 @@
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only [copenhagen]]
+        [webapp.client.model                 :only [find-places-in-bounds]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -108,10 +109,10 @@
 
 ;(do-action "clear markers")
 
-
-
-
-
+;find-places-in-bounds
+;@the-map
+;(do-action "load places")
+;(find-places-in-bounds @the-map)
 
 ;-------------------------------------------------------
 (redefine-action "update places"
@@ -119,38 +120,35 @@
   (go
    ;(. @the-map clear)
    (let [
-        places
-         (into []
-               (<! (neo4j/find-names-within-distance
-                    "ore2"
-                    (.lng (. @the-map getCenter))
-                    (.lat (. @the-map getCenter))
-                    100)))
+        places-in-view       (find-places-in-bounds @the-map)
         ]
+
       (do-action "clear markers")
       (doall
              (map
-                 (fn[x]
-                     (log x)
-                     (let
+                 (fn[place-id]
+                     (log place-id)
+                     ( let
                      [
+                          place-details  (get places-in-view place-id)
                           marker   (google.maps.Marker.
                                         (clj->js
                                           {
-                                            :position (google.maps.LatLng. (:y x) (:x x))
-                                            :map       @the-map
-                                            :title    (:name x)
-                                            :icon  (red-marker)
+                                            :position  (google.maps.LatLng.
+                                                           (:y place-details)
+                                                           (:x place-details))
+                                            :map        @the-map
+                                            :title     (:name place-details)
+                                            :icon      (red-marker)
                                           }))
                       ]
-                      (swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
+                      ;(swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
                       marker
                       ))
 
-                 places
+                 (keys places-in-view)
              )
 ))))
-
 
 (comment js/MarkerWithLabel.
     (clj->js
