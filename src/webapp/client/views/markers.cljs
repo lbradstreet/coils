@@ -20,7 +20,7 @@
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only [copenhagen]]
-        [webapp.client.model                 :only [find-places-in-bounds]]
+        [webapp.client.model                 :only [find-places-in-bounds places place-changes]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -113,6 +113,17 @@
 ;@the-map
 ;(do-action "load places")
 ;(find-places-in-bounds @the-map)
+
+
+(add-watch place-changes :events-change
+
+    (fn [key a old-val new-val]
+      (doall
+       (. js/console log (pr-str "Events changed"))
+       (do-action "update places")
+       )))
+
+
 
 ;-------------------------------------------------------
 (redefine-action "update places"

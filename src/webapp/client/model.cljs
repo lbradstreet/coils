@@ -36,6 +36,12 @@
 ;-------------------------------------------------------
   (atom {}))
 
+;-------------------------------------------------------
+(def place-changes
+;-------------------------------------------------------
+  (atom 0))
+
+;place-changes
 ;(first @places)
 ;@places
 ;(reset! places {})
@@ -73,7 +79,7 @@
               )
               places-from-server
           ))
-          (do-action "update places")
+          (swap! place-changes inc)
         )
 
    )
