@@ -154,12 +154,15 @@
                         @the-map
                         "bounds_changed"
                         (fn []
-                          (do-action "update places")
-
+                          (let [
+                            x (.lng (. @the-map getCenter))
+                            y (.lat (. @the-map getCenter))
+                                ]
+                          (do-action "load places" {:x x   :y y})
                           (do-action "show center square")
                           (find-places-in-square)
                           (clear "top-left")
-                          )
+                          ))
                         )))
 
 
