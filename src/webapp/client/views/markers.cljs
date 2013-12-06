@@ -20,7 +20,11 @@
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only [copenhagen]]
-        [webapp.client.model                 :only [find-places-in-bounds places place-changes]]
+        [webapp.client.model                 :only [find-places-in-bounds
+                                                    places
+                                                    place-changes
+                                                    set-marker-for-place
+                                                    place-is-on-map]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -115,8 +119,9 @@
 ;(find-places-in-bounds @the-map)
 
 
+;-------------------------------------------------------
 (add-watch place-changes :events-change
-
+;-------------------------------------------------------
     (fn [key a old-val new-val]
       (doall
        (. js/console log (pr-str "Events changed"))
@@ -131,35 +136,43 @@
   (go
    ;(. @the-map clear)
    (let [
-        places-in-view       (find-places-in-bounds @the-map)
-        ]
+         places-in-view       (find-places-in-bounds @the-map)
+         ]
 
-      (do-action "clear markers")
-      (doall
-             (map
-                 (fn[place-id]
-                     (log place-id)
-                     ( let
-                     [
-                          place-details  (get places-in-view place-id)
-                          marker   (google.maps.Marker.
-                                        (clj->js
-                                          {
-                                            :position  (google.maps.LatLng.
-                                                           (:y place-details)
-                                                           (:x place-details))
-                                            :map        @the-map
-                                            :title     (:name place-details)
-                                            :icon      (red-marker)
-                                          }))
-                      ]
-                      ;(swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
-                      marker
-                      ))
+         ;(do-action "clear markers")
+         (doall
+          (map
+            (fn[place-id]
+              (cond
+                (not (place-is-on-map   place-id))
+                  (let
+                  [
+                     place-details  (get places-in-view place-id)
+                     marker         (google.maps.Marker.
+                                      (clj->js
+                                      {
+                                       :position  (google.maps.LatLng.
+                                                   (:y place-details)
+                                                   (:x place-details))
+                                       :map        @the-map
+                                       :title     (:name place-details)
+                                       :icon      (red-marker)
+                                       }))
+                   ]
+                   (set-marker-for-place  :place-id place-id    :marker marker)
+                   ;(swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
+                   marker
+                 )
+              )
+            )
 
-                 (keys places-in-view)
-             )
-))))
+           (keys places-in-view)
+         )
+         ))))
+
+(place-is-on-map 1)
+
+
 
 (comment js/MarkerWithLabel.
     (clj->js

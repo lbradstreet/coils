@@ -29,6 +29,17 @@
 (ns-coils 'webapp.client.model)
 
 
+(def next-place-id (atom 0))
+@next-place-id
+
+(def index-neo4j-id (atom {}))
+@index-neo4j-id
+
+(defn get-new-place-id []
+  (swap! next-place-id inc)
+  @next-place-id)
+;(get-new-place-id)
+
 
 
 ;-------------------------------------------------------
@@ -41,11 +52,97 @@
 ;-------------------------------------------------------
   (atom 0))
 
+
+
+(defn place-is-on-map [place-id]
+  (let
+    [place   (get @places place-id)]
+      (if place
+        (:is-on-map? place)
+        )
+  )
+  )
+
 ;place-changes
 ;(first @places)
 ;@places
 ;(reset! places {})
+;(reset! places @places)
 ;(do-action "load places" {:x    (copenhagen :lon)    :y    (copenhagen :lat)})
+
+;-------------------------------------------------------
+(defn set-marker-for-place
+;-------------------------------------------------------
+  [& {:keys
+        [
+             place-id
+             marker
+        ]
+       }
+   ]
+  (reset!
+     places
+     (merge
+      @places
+      {
+         place-id
+           (merge (get @places place-id)
+               {:marker      marker
+                :is-on-map?  true})})
+   )
+)
+;(get @places 32)
+;(set-marker-for-place :place-id 32 :marker 2)
+;@places
+
+;-------------------------------------------------------
+(defn add-place-from-server
+;-------------------------------------------------------
+  [& {:keys
+        [
+             place-name
+             neo4j-id
+             x
+             y
+        ]
+       }
+   ]
+  (let [
+        place-already-in-model  (get  @index-neo4j-id  neo4j-id)
+        ]
+
+       (cond
+        (not place-already-in-model)
+         (do
+           (let [
+                 new-client-place-id  (get-new-place-id)
+                 ]
+                 (swap!
+                    places
+                    assoc
+                    new-client-place-id
+                    {
+                      :neo4j-id     neo4j-id
+                      :place-name   place-name
+                      :x            x
+                      :y            y
+                      :is-on-map?   false
+                    }
+                 )
+                 (swap!
+                    index-neo4j-id
+                    assoc
+                    neo4j-id
+                    new-client-place-id
+                 )
+           )
+         )
+       )
+    )
+)
+;(add-place-from-server :neo4j-id 1000 :place-name "Library" :x 1 :y 2)
+
+
 
 
 ;-------------------------------------------------------
@@ -67,15 +164,12 @@
           (dorun
            (map
               (fn[place-from-server]
-                 (let [
-                           id-of-place-from-server   (:id place-from-server)
-                           place-in-model            (get    @places   id-of-place-from-server)
-                       ]
-                       (if place-in-model
-                         (log place-in-model)
-                         (swap! places
-                                assoc   id-of-place-from-server   place-from-server))
-                 )
+                (add-place-from-server
+                 :neo4j-id   (:id     place-from-server)
+                 :name       (:name   place-from-server)
+                 :x          (:x      place-from-server)
+                 :y          (:y      place-from-server)
+                )
               )
               places-from-server
           ))
@@ -89,7 +183,12 @@
 ;(second  (first @places))
 
 
+
+
+
+;-------------------------------------------------------
 (defn find-places-in-bounds [this-map]
+;-------------------------------------------------------
   (let [
         bounds    (. this-map getBounds)
         ]
@@ -114,5 +213,5 @@
 
 )
 
-;(count (find-places-in-bounds @the-map))
+; (find-places-in-bounds @the-map))
 
