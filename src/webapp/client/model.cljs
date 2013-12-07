@@ -29,49 +29,149 @@
 (ns-coils 'webapp.client.model)
 
 
-(def next-place-id (atom 0))
-@next-place-id
 
-(def index-neo4j-id (atom {}))
-@index-neo4j-id
 
+
+
+
+;-------------------------------------------------------------------------
+(def index-neo4j-id
+; eg: an index of {1 10   2 12}
+;     points to places { 10 {:neo4j-id 1 ...}   12 {:neo4j-id 2  ...}
+;-------------------------------------------------------------------------
+  (atom {}))
+;@index-neo4j-id
+
+
+
+
+
+;-------------------------------------------------------------------------
+(def next-place-id
+; the client side IDs of all the places. These IDs will be different on
+; different browsers
+;-------------------------------------------------------------------------
+  (atom 0))
+;@next-place-id
+
+
+
+
+;-------------------------------------------------------------------------
 (defn get-new-place-id []
+;-------------------------------------------------------------------------
   (swap! next-place-id inc)
   @next-place-id)
 ;(get-new-place-id)
 
 
 
-;-------------------------------------------------------
+
+;-------------------------------------------------------------------------
 (def places
-;-------------------------------------------------------
+;-------------------------------------------------------------------------
   (atom {}))
 
-;-------------------------------------------------------
+
+
+
+;-------------------------------------------------------------------------
 (def place-changes
-;-------------------------------------------------------
+; This is like a commit log for the places. Any one who watches for changes
+; in the places will only be notified if this is incremented
+;-------------------------------------------------------------------------
   (atom 0))
 
+(defn commit-place-changes []
+  (swap! place-changes inc))
 
 
-(defn place-is-on-map [place-id]
+;-------------------------------------------------------------------------
+(defn place-has-been-added-to-google-map? [place-id]
+;-------------------------------------------------------------------------
   (let
     [place   (get @places place-id)]
       (if place
-        (:is-on-map? place)
+        (:is-added-to-google-map? place)
         )
   )
+)
+
+;-------------------------------------------------------------------------
+(defn place-has-changed? [place-id]
+;-------------------------------------------------------------------------
+  (let
+    [place   (get @places place-id)]
+      (if place
+        (:is-changed? place)
+        )
   )
+)
 
 ;place-changes
-;(first @places)
+(first @places)
+
+;(highlight-place :place-id 32)
+;(commit-place-changes)
+
+(comment edit-place    :place-id    32
+               :the-key     :marker
+               :the-value   "d"
+               :is-changed? false)
 ;@places
+;(count @places)
+
 ;(reset! places {})
 ;(reset! places @places)
 ;(do-action "load places" {:x    (copenhagen :lon)    :y    (copenhagen :lat)})
 
+
 ;-------------------------------------------------------
-(defn set-marker-for-place
+(defn edit-place
+;-------------------------------------------------------
+  [& {:keys
+        [
+             place-id
+             the-key
+             the-value
+             is-changed?
+        ]
+        :or {
+             is-changed? true
+             }
+       }
+   ]
+  (if (get @places place-id)
+    (reset!
+       places
+       (merge
+         @places
+         {
+           place-id
+           (merge (get @places place-id)
+               {the-key                    the-value
+                :is-changed?               is-changed?})})
+   )
+))
+
+
+;-------------------------------------------------------
+(defn highlight-place
+;-------------------------------------------------------
+  [& {:keys
+        [
+             place-id
+        ]
+       }
+   ]
+   (edit-place :place-id    place-id
+               :the-key     :highlighted
+               :the-value   true)
+)
+
+
+;-------------------------------------------------------
+(defn place-added-to-google-map
 ;-------------------------------------------------------
   [& {:keys
         [
@@ -80,19 +180,26 @@
         ]
        }
    ]
-  (reset!
-     places
-     (merge
-      @places
-      {
-         place-id
-           (merge (get @places place-id)
-               {:marker      marker
-                :is-on-map?  true})})
-   )
+   (edit-place :place-id    place-id
+               :the-key     :marker
+               :the-value   marker
+               :is-changed? false)
+
+   (edit-place :place-id    place-id
+               :the-key     :is-added-to-google-map?
+               :the-value   true
+               :is-changed? false)
 )
+
+(defn remove-place-from-google-map [place-id]
+  (if (get @places place-id)
+    (if (:marker (get @places place-id))
+     (do
+       (. (:marker (get @places place-id)) setMap nil))))
+)
+
 ;(get @places 32)
-;(set-marker-for-place :place-id 32 :marker 2)
+;(place-added-to-google-map :place-id 32 :marker 2)
 ;@places
 
 ;-------------------------------------------------------
@@ -122,11 +229,12 @@
                     assoc
                     new-client-place-id
                     {
-                      :neo4j-id     neo4j-id
-                      :place-name   place-name
-                      :x            x
-                      :y            y
-                      :is-on-map?   false
+                      :neo4j-id                  neo4j-id
+                      :place-name                place-name
+                      :x                         x
+                      :y                         y
+                      :is-added-to-google-map?   false
+                      :is-changed?               false
                     }
                  )
                  (swap!
@@ -173,7 +281,7 @@
               )
               places-from-server
           ))
-          (swap! place-changes inc)
+          (commit-place-changes)
         )
 
    )
