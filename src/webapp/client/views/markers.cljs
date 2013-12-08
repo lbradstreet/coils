@@ -14,7 +14,7 @@
         [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
                                                     header-text body-text
                                                     body-html make-sidebar swap-section  el clear remote
-                                                    value-of add-to show-popover]]
+                                                    value-of add-to show-popover log]]
         [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
@@ -28,7 +28,8 @@
                                                     highlight-place
                                                     commit-place-changes
                                                     place-has-changed?
-                                                    remove-place-from-google-map]]
+                                                    remove-place-from-google-map
+                                                    get-place-id-from-neo4j-index]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -151,7 +152,10 @@
                                                      (:x place-details))
                                           :map       map-arg
                                           :title     (:name place-details)
-                                          :icon      (red-marker)
+                                          :icon      (if (:highlighted place-details)
+                                                          (green-marker)
+                                                          (red-marker)
+                                                          )
                                         }))
                      ]
                      (place-added-to-google-map  :place-id place-id    :marker marker)
@@ -182,11 +186,14 @@
                      [
                        place-details  (get places-in-view place-id)
                       ]
+                       (log "remove place")
                        (remove-place-from-google-map  place-id)
+                     (show-place-on-google-map :place-id place-id
+                                              :map-arg @the-map)
+
                      )
 
-              )
-            )
+              ))
 
            (keys places-in-view)
          )
@@ -240,8 +247,25 @@
                             (str "<h2><strong>"
                                  (:name (first places))
                                  "</strong></h2>")]))
-             ;(highlight-place :place-id place-id)
+             (highlight-place
+              :place-id (get-place-id-from-neo4j-index (:id (first places))))
              (commit-place-changes)
 
             ;(do-action "color marker" {:id (:id (first places))})
 )))))
+
+
+
+  (comment go
+    (let [
+           places    (into []
+                       (<! (neo4j/find-names-within-distance
+                            "ore2"
+                            (.lng (. @the-map getCenter))
+                            (.lat (. @the-map getCenter))
+                            0.2)))
+;          ii (get-place-id-from-neo4j-index (:id (first places)))
+          ]
+      (log (str (:id (first places))))))
+
+  ;get-place-id-from-neo4j-index

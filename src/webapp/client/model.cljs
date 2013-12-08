@@ -43,7 +43,8 @@
 ;@index-neo4j-id
 
 
-
+(defn get-place-id-from-neo4j-index [neo4j-id]
+  (get @index-neo4j-id neo4j-id))
 
 
 ;-------------------------------------------------------------------------
