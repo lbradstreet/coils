@@ -29,7 +29,8 @@
                                                     commit-place-changes
                                                     place-has-changed?
                                                     remove-place-from-google-map
-                                                    get-place-id-from-neo4j-index]]
+                                                    get-place-id-from-neo4j-index
+                                                    find-places-in-rectangle]]
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -223,7 +224,7 @@
 
 
 ;-------------------------------------------------------
-(defn find-places-in-square []
+(defn find-places-in-square2 []
 ;-------------------------------------------------------
   (go
     (let [
@@ -255,6 +256,47 @@
 )))))
 
 
+
+
+
+;-------------------------------------------------------
+(defn find-places-in-square []
+;-------------------------------------------------------
+  (go
+    (let [
+           places   (find-places-in-rectangle
+                            :start-x (- (.lng (. @the-map getCenter)) 0.0009)
+                            :end-x   (+ (.lng (. @the-map getCenter)) 0.0009)
+                            :start-y (- (.lat (. @the-map getCenter)) 0.0009)
+                            :end-y   (+ (.lat (. @the-map getCenter)) 0.0009)
+                            )
+         ]
+         (if (> (count places) 0)
+           (do
+             (clear "bottom-left")
+             (add-to "bottom-left"
+                    (el :div {
+                         :style "width: 200px; height: 120px;
+                                 background-color: white;
+                                 opacity:0.6;
+                                 margin: 10px; border: 10px;"
+                         } [
+                            (str "<h2><strong>"
+                                 (:place-name (get places (first (keys places))))
+                                 "</strong></h2>")]))
+             (highlight-place
+              :place-id (first (keys places)))
+             (commit-place-changes)
+
+            ;(do-action "color marker" {:id (:id (first places))})
+)))))
+
+(comment def a ( find-places-in-rectangle
+                            :start-x  (- (.lng (. @the-map getCenter)) 0.0005)
+                            :end-x    (+ (.lng (. @the-map getCenter)) 0.0005)
+                            :start-y  (- (.lat (. @the-map getCenter)) 0.0005)
+                            :end-y    (+ (.lat (. @the-map getCenter)) 0.0005)
+                            ))
 
   (comment go
     (let [

@@ -275,7 +275,7 @@
               (fn[place-from-server]
                 (add-place-from-server
                  :neo4j-id   (:id     place-from-server)
-                 :name       (:name   place-from-server)
+                 :place-name (:name   place-from-server)
                  :x          (:x      place-from-server)
                  :y          (:y      place-from-server)
                 )
@@ -292,6 +292,37 @@
 ;(second  (first @places))
 
 
+
+
+
+;-------------------------------------------------------
+(defn find-places-in-rectangle [& {:keys
+        [
+             start-x
+             start-y
+             end-x
+             end-y
+        ]
+       }]
+;-------------------------------------------------------
+             (select-keys
+                @places
+                (for [[place-id place-details] @places :when
+                  (let [
+                        x               (:x place-details)
+                        y               (:y place-details)
+                        x-is-between    (and (> x (min start-x end-x)) (< x (max start-x end-x)))
+                        y-is-between    (and (> y (min start-y end-y)) (< y (max start-y end-y)))
+                        ]
+                    (if (and x-is-between y-is-between)
+                      true
+                      )
+                    )] place-id
+                  )
+              )
+
+
+  )
 
 
 
@@ -319,7 +350,6 @@
 
 
   )
-
 )
 
 ; (find-places-in-bounds @the-map))
