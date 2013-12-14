@@ -35,7 +35,14 @@
 
 
 
-(defn get-start-location []
+
+
+
+;-------------------------------------------------------
+(defn get-start-location
+  "Gets the start location of the map, using geocoding if needed"
+  []
+;-------------------------------------------------------
      (let
      [
         ch            (chan 1)
@@ -70,19 +77,7 @@
   )
 
 
-(comment  go
 
-  (log (str (<! (is-debug?))))
-
- )
-
-
-
-(comment  go
-
-  (log (str (<! (get-start-location))))
-
- )
 
 
 
@@ -121,4 +116,14 @@
 )))))))
 
 
+
+
+
+;-------------------------------------------------------
+; debug stuff
+;-------------------------------------------------------
 ;(do-action "load places")
+(comment  go
+  (log (str (<! (is-debug?)))))
+(comment  go
+  (log (str (<! (get-start-location)))))
