@@ -109,10 +109,10 @@
 
 
                      (do-action "add corners")
-                     (do-action "load places" {:x x   :y y})
+;                     (do-action "load places" {:x x   :y y})
                      (do-action "add map left click event")
                      (do-action "add bounds changed event")
-                     (do-action "update places")
+                     ;(do-action "update places")
 )))))))
 
 

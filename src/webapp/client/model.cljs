@@ -259,13 +259,17 @@
 ;-------------------------------------------------------
   (go
     (let [
-        x                      (message :x)
-        y                      (message :y)
-        places-from-server     (<! (neo4j/find-names-within-distance
+        min-x                      (message :min-x)
+        min-y                      (message :min-y)
+        max-x                      (message :max-x)
+        max-y                      (message :max-y)
+        places-from-server     (<! (neo4j/find-names-within-bounds
                                       "ore2"
-                                      x
-                                      y
-                                      1.2))
+                                      min-x
+                                      min-y
+                                      max-x
+                                      max-y
+                                      ))
         ]
         (do
           (log "Number of places: " (count places-from-server))

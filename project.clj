@@ -83,7 +83,8 @@
 
                 :test
                 {
-                  :source-paths ["src" "srctest"]
+                  :source-paths ["src"
+                                 "../srctest"]
                   :cljsbuild
                   {
                     :builds

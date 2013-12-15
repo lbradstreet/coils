@@ -170,5 +170,17 @@
 )
 
 
+(defn find-names-within-bounds [  layer-name min-x min-y max-x max-y ]
+    (go
+        (<! (remote "!find-names-within-bounds"   {:layer-name layer-name
+                                                   :min-x min-x
+                                                   :min-y min-y
+                                                   :max-x max-x
+                                                   :max-y max-y
+                                                   }))
+    )
+)
+
+
 (comment go
      (log (<! (find-names-within-distance   "ore2"  0   0  1000))) )
