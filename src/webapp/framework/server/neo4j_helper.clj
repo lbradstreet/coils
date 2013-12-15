@@ -159,6 +159,13 @@
   (post-spatial "findGeometriesWithinDistance"
                 {:layer layer :pointX point-x :pointY point-y :distanceInKm distance-in-km}))
 
+(defn find-within-bounds
+  "Find all points in the layer within a given bounds"
+  [layer min-x max-x min-y max-y]
+  (post-spatial "findGeometriesInBBox"
+                {:layer layer :minx min-x :maxx max-x :miny min-y :maxy max-y}))
+
+
 
 (defn find-names-within-distance [layer x y dist-km]
   (map
@@ -178,6 +185,31 @@
 )
 
 
+
+(defn find-names-within-bounds [layer minx maxx miny maxy]
+  (map
+    (fn [x]
+      (let [data    (:data x)]
+        {
+          :id    (:id x)
+          :name (:name data)
+          :x    (:x data)
+          :y    (:y data)
+        }
+      )
+    )
+
+    (find-within-bounds layer minx maxx miny maxy)
+  )
+)
+
+
+
+
+
+;(find-names-within-bounds "ore2" 0.0 1.1 50.0 51.5)
+
+
 ;( find-names-within-distance "ore2" -10.1 -1.1 10000.1)
 
 
@@ -189,7 +221,7 @@
   (tx/commit t))
 
 
-( try
+(comment  try
      (add-simple-point-layer "ore2")
          (catch Exception e (str "caught exception: " (.getMessage e))))
 
