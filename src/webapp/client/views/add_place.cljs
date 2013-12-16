@@ -73,8 +73,9 @@
 
 
 
-(redefine-action
- "Cancel add place"
+;---------------------------------------------------------------
+(redefine-action "Cancel add place"
+;---------------------------------------------------------------
   (do
    (do-action "update places")
    (clear "bottom-left")
@@ -87,7 +88,9 @@
 
 
 
+;---------------------------------------------------------------
 (redefine-action "add place"
+;---------------------------------------------------------------
   (let [
            element    (message :element)
            lat        (message :lat)
@@ -146,5 +149,11 @@
     marker
   )
 )
+
+
+
+;---------------------------------------------------------------
+; DEBUG
+;---------------------------------------------------------------
 ;(clear "bottom-left")
 ;(do-action "add place"    {:place-id 1    :element  "bottom-left"})

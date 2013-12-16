@@ -33,6 +33,10 @@
 
 
 
+;----------------------------------------------------------------------------------------
+(def bounds-loaded
+;----------------------------------------------------------------------------------------
+  (atom []))
 
 
 
@@ -144,7 +148,28 @@
 ))
 
 
-(def bounds-loaded (atom []))
+
+
+
+
+(defn does-bounds-contain-bounds? [larger smaller]
+  (cond
+     (< (. (. smaller getSouthWest) lng)   (. (. larger getSouthWest) lng)) false
+     (< (. (. smaller getSouthWest) lat)   (. (. larger getSouthWest) lat)) false
+
+     (> (. (. smaller getNorthEast) lng)   (. (. larger getNorthEast) lng)) false
+     (> (. (. smaller getNorthEast) lat)   (. (. larger getNorthEast) lat)) false
+     :else true
+  )
+)
+
+
+
+(defn is-loaded? [b2]
+    (some
+     (fn [b] (does-bounds-contain-bounds? b b2))
+     @bounds-loaded))
+
 
 
 
@@ -163,23 +188,90 @@
                             sw     (. bounds  getSouthWest )
                             ne     (. bounds  getNorthEast )
                             min-x  (. sw lng)
-                            max-x  (. ne lat)
-                            min-y  (. ne lat)
-                            max-y  (. sw lng)
+                            max-x  (. ne lng)
+                            max-y  (. ne lat)
+                            min-y  (. sw lat)
+                            width  (- max-x min-x)
+                            height (- max-y min-y)
+
+                                new-min-x (- min-x width)
+                                new-max-x (+ max-x width)
+                                new-min-y (- min-y height)
+                                new-max-y (+ max-y height)
+
                                 ]
-       (log "******add bounds changed event")
-                          ( do-action "load places" {
-                                                    :min-x min-x
-                                                    :min-y min-y
-                                                    :max-x max-x
-                                                    :max-y max-y
-                                                    })
+                          (log "***********min-x" min-x)
+                          (log "***********max-x" max-x)
+                          (log "***********min-y" min-y)
+                          (log "***********max-y" max-y)
+                          (log "***********width" height)
+                          (log "***********height" height)
+                          (log "***********new-min-x" new-min-x)
+                          (log "***********new-min-y" new-min-y)
+                          (log "***********new-max-x" new-max-x)
+                          (log "***********new-max-y" new-max-y)
+
+
+                          (if (not (is-loaded? bounds))
+                            (do
+                              (do-action "load places" {
+                                                      :min-y new-min-y
+                                                      :min-x new-min-x
+
+                                                      :max-y new-max-y
+                                                      :max-x new-max-x
+                                                      })
+                              (swap! bounds-loaded conj
+                                     (google.maps.LatLngBounds.
+                                       (google.maps.LatLng. new-min-y
+                                                            new-min-x)
+                                       (google.maps.LatLng. new-max-y
+                                                            new-max-x)
+
+                                      )))
+
+
+                              (do
+                                (do-action "update places"))
+                            )
                           (do-action "show center square")
                           (find-places-in-square)
                           (clear "top-left")
-                          ))
-                        )))
+                          )))
+                        ))
 
 
 
+
+
+;----------------------------------------------------------------------------------------
+; DEBUG
+;----------------------------------------------------------------------------------------
 ;(do-action "update places")
+;@bounds-loaded
+
+
+(comment .
+ (. @the-map getBounds)
+ getSouthWest)
+
+(comment .
+ (. @the-map getBounds)
+ getNorthEast)
+
+
+;( def a (. @the-map getBounds))
+
+;a
+
+;(is-loaded? a)
+
+(comment def b
+  (google.maps.LatLngBounds.
+   (google.maps.LatLng. (- (. (. a getSouthWest) lat) 0.01)
+                        (+ (. (. a getSouthWest) lng)) 0.01)
+   (google.maps.LatLng. (+ (. (. a getNorthEast) lat) 0.01)
+                        (- (. (. a getNorthEast) lng) 0.01)
+  )))
+;(does-bounds-contain-bounds? a b)
+
