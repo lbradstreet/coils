@@ -242,7 +242,7 @@
 
 
 
-
+(def drag (atom 1))
 
 ;----------------------------------------------------------------------------------------
 (redefine-action "add center changed event"
@@ -252,8 +252,13 @@
                         @the-map
                         "drag"
                         (fn []
-                          (find-places-in-square)
-                          []
+                             (do
+                              (clear "top-right")
+                              (swap! drag inc)
+                              (add-to "top-right" (str "<div>Drag " @drag "</div>"))
+                              (find-places-in-square)
+                              []
+                          )
                           )))
                         )
 
