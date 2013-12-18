@@ -234,9 +234,8 @@
                               (do
                                 (do-action "update places"))
                             )
-                          (do-action "show center square")
-                          ;(find-places-in-square)
                           (clear "top-left")
+                          (do-action "show center square")
                           )))
                         ))
 
@@ -247,20 +246,21 @@
 ;----------------------------------------------------------------------------------------
 (redefine-action "add center changed event"
 ;----------------------------------------------------------------------------------------
-    (go
        ( google.maps.event.addListener
                         @the-map
                         "drag"
                         (fn []
-                             (do
-                              (clear "top-right")
-                              (swap! drag inc)
-                              (add-to "top-right" (str "<div>Drag " @drag "</div>"))
-                              (find-places-in-square)
-                              []
+                             (dorun
+                              (do
+                                (clear "top-right")
+                                (swap! drag inc)
+                                (add-to "top-right" (str "<div>Drag " @drag "</div>"))
+                                (find-places-in-square  (. @the-map getCenter))
+                                []
+                                )
                           )
                           )))
-                        )
+
 
 
 

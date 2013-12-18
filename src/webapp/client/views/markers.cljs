@@ -39,12 +39,15 @@
 )
 (ns-coils 'webapp.client.views.markers)
 
+
+
+
+
 ;-------------------------------------------------------
 (def markers
 ;-------------------------------------------------------
   (atom []))
 
-;(js->clj (:marker (first @markers)))
 
 
 
@@ -108,6 +111,9 @@
 
 
 
+
+
+
 ;-------------------------------------------------------
 (redefine-action "clear markers"
 ;-------------------------------------------------------
@@ -117,12 +123,9 @@
            ) @markers))
 )
 
-;(do-action "clear markers")
 
-;find-places-in-bounds
-;@the-map
-;(do-action "load places")
-;(find-places-in-bounds @the-map)
+
+
 
 
 ;-------------------------------------------------------
@@ -136,12 +139,15 @@
 
 
 
-(defn show-place-on-google-map [
-                                & {:keys
-        [
-                                       place-id
-                                       map-arg
-                                       ]}]
+
+
+
+;-------------------------------------------------------
+(defn show-place-on-google-map [& {:keys [
+                                          place-id
+                                          map-arg
+                                         ]}]
+;-------------------------------------------------------
   (let
                     [
                        place-details  (get @places place-id)
@@ -160,9 +166,10 @@
                                         }))
                      ]
                      (place-added-to-google-map  :place-id place-id    :marker marker)
-                     ;(swap! markers conj {:id (:id x) :marker marker :y (:y x) :x (:x x)})
                      marker
                    ))
+
+
 
 
 ;-------------------------------------------------------
@@ -200,97 +207,60 @@
          )
          ))))
 
-;(place-has-been-added-to-google-map? 1)
-
-
-
-;-------------------------------------------------------
-; Adds a marker with text
-;-------------------------------------------------------
-(comment js/MarkerWithLabel.
-    (clj->js
-    {
-          :labelContent        "Test"
-          :position            (google.maps.LatLng.  (copenhagen :lat)  (copenhagen :lon))
-          :map                 @the-map
-          :labelStyle          {:opacity      0.75
-                                :font-size    24}
-          :labelClass "labels"
-        })
- )
 
 
 
 
+
+
+(def in-square (atom false))
 
 ;-------------------------------------------------------
-(defn find-places-in-square2 []
+(defn find-places-in-square [center]
 ;-------------------------------------------------------
   (go
-    (let [
-           places    (into []
-                       (<! (neo4j/find-names-within-distance
-                            "ore2"
-                            (.lng (. @the-map getCenter))
-                            (.lat (. @the-map getCenter))
-                            0.2)))
-         ]
-         (if (> (count places) 0)
-           (do
-             (clear "bottom-left")
-             (add-to "bottom-left"
-                    (el :div {
-                         :style "width: 200px; height: 120px;
-                                 background-color: white;
-                                 opacity:0.6;
-                                 margin: 10px; border: 10px;"
-                         } [
-                            (str "<h2><strong>"
-                                 (:name (first places))
-                                 "</strong></h2>")]))
-             (highlight-place
-              :place-id (get-place-id-from-neo4j-index (:id (first places))))
-             (commit-place-changes)
+;   (if (not @in-square)
+    (do
+;      (add-to "top-left" (str "<div>2</div>"))
+      (reset! in-square true)
+      (let [
+             places   (find-places-in-rectangle
+                              :start-x (- (.lng center) 0.001)
+                              :end-x   (+ (.lng center) 0.001)
+                              :start-y (- (.lat center) 0.001)
+                              :end-y   (+ (.lat center) 0.001)
+                              )
+           ]
+           (if (> (count places) 0)
+             (do
+               (clear "bottom-left")
+               (add-to "bottom-left"
+                      (el :div {
+                           :style "width: 200px; height: 120px;
+                                   background-color: white;
+                                   opacity:0.6;
+                                   margin: 10px; border: 10px;"
+                           } [
+                              (str "<h2><strong>"
+                                   (:place-name (get places (first (keys places))))
+                                   "</strong></h2>")]))
+               (highlight-place
+                :place-id (first (keys places)))
+               (commit-place-changes)
+               (reset! in-square false)
+               []
 
             ;(do-action "color marker" {:id (:id (first places))})
-)))))
+))))))
+
 
 
 
 
 
 ;-------------------------------------------------------
-(defn find-places-in-square []
+; DEBUG
 ;-------------------------------------------------------
-  (go
-    (let [
-           places   (find-places-in-rectangle
-                            :start-x (- (.lng (. @the-map getCenter)) 0.0009)
-                            :end-x   (+ (.lng (. @the-map getCenter)) 0.0009)
-                            :start-y (- (.lat (. @the-map getCenter)) 0.0009)
-                            :end-y   (+ (.lat (. @the-map getCenter)) 0.0009)
-                            )
-         ]
-         (if (> (count places) 0)
-           (do
-             (clear "bottom-left")
-             (add-to "bottom-left"
-                    (el :div {
-                         :style "width: 200px; height: 120px;
-                                 background-color: white;
-                                 opacity:0.6;
-                                 margin: 10px; border: 10px;"
-                         } [
-                            (str "<h2><strong>"
-                                 (:place-name (get places (first (keys places))))
-                                 "</strong></h2>")]))
-             (highlight-place
-              :place-id (first (keys places)))
-             (commit-place-changes)
-
-            ;(do-action "color marker" {:id (:id (first places))})
-)))))
-
 (comment def a ( find-places-in-rectangle
                             :start-x  (- (.lng (. @the-map getCenter)) 0.0005)
                             :end-x    (+ (.lng (. @the-map getCenter)) 0.0005)
@@ -311,3 +281,31 @@
       (log (str (:id (first places))))))
 
   ;get-place-id-from-neo4j-index
+
+  ;(place-has-been-added-to-google-map? 1)
+
+
+
+; Adds a marker with text
+(comment js/MarkerWithLabel.
+    (clj->js
+    {
+          :labelContent        "Test"
+          :position            (google.maps.LatLng.  (copenhagen :lat)  (copenhagen :lon))
+          :map                 @the-map
+          :labelStyle          {:opacity      0.75
+                                :font-size    24}
+          :labelClass "labels"
+        })
+ )
+
+
+;(do-action "clear markers")
+
+;find-places-in-bounds
+;@the-map
+;(do-action "load places")
+;(find-places-in-bounds @the-map)
+
+
+;(js->clj (:marker (first @markers)))
