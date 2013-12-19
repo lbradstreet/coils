@@ -20,7 +20,7 @@
         [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
         [webapp.client.session               :only [the-map]]
         [webapp.client.views.html            :only [map-html]]
-        [webapp.client.views.gmap            :only [map-options]]
+        [webapp.client.views.gmap            :only [map-options bounds-changed]]
         [webapp.client.views.spatial         :only [copenhagen london]]
     )
     (:use-macros
@@ -107,14 +107,14 @@
                           (. js/document getElementById map-element-id)
                           (clj-to-js  (map-options x y))))
 
-
+   (google.maps.event.addListenerOnce @the-map "idle" (fn []
                      (do-action "add corners")
 ;                     (do-action "load places" {:x x   :y y})
                      (do-action "add map left click event")
                      (do-action "add bounds changed event")
                      (do-action "add center changed event")
-                     ;(do-action "update places")
-)))))))
+                     (bounds-changed)
+)))))))))
 
 
 

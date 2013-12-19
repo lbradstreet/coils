@@ -213,16 +213,15 @@
 
 
 
-(def in-square (atom false))
 
 ;-------------------------------------------------------
 (defn find-places-in-square [center]
 ;-------------------------------------------------------
   (go
-;   (if (not @in-square)
+      (add-to "top-left" (str "<div>1</div>"))
     (do
-;      (add-to "top-left" (str "<div>2</div>"))
-      (reset! in-square true)
+      (add-to "top-left" (str "<div>2</div>"))
+      (add-to "top-left" (str "<div>3</div>"))
       (let [
              places   (find-places-in-rectangle
                               :start-x (- (.lng center) 0.001)
@@ -231,8 +230,10 @@
                               :end-y   (+ (.lat center) 0.001)
                               )
            ]
+           (add-to "top-left" (str "<div>4</div>"))
            (if (> (count places) 0)
              (do
+               (add-to "top-left" (str "<div>5</div>"))
                (clear "bottom-left")
                (add-to "bottom-left"
                       (el :div {
@@ -244,10 +245,12 @@
                               (str "<h2><strong>"
                                    (:place-name (get places (first (keys places))))
                                    "</strong></h2>")]))
+               (add-to "top-left" (str "<div>6</div>"))
                (highlight-place
                 :place-id (first (keys places)))
                (commit-place-changes)
-               (reset! in-square false)
+               (add-to "top-left" (str "<div>7</div>"))
+               (add-to "top-left" (str "<div>8</div>"))
                []
 
             ;(do-action "color marker" {:id (:id (first places))})

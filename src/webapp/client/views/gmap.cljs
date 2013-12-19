@@ -174,13 +174,8 @@
 
 
 ;----------------------------------------------------------------------------------------
-(redefine-action "add bounds changed event"
+(defn bounds-changed []
 ;----------------------------------------------------------------------------------------
-    (go
-       ( google.maps.event.addListener
-                        @the-map
-                        "bounds_changed"
-                        (fn []
                           (let [
                             x (.lng (. @the-map getCenter))
                             y (.lat (. @the-map getCenter))
@@ -236,12 +231,25 @@
                             )
                           (clear "top-left")
                           (do-action "show center square")
-                          )))
-                        ))
+                          ))
+
+
+
+;----------------------------------------------------------------------------------------
+(redefine-action "add bounds changed event"
+;----------------------------------------------------------------------------------------
+    (go
+       ( google.maps.event.addListener
+                        @the-map
+                        "bounds_changed"
+  bounds-changed  )))
 
 
 
 (def drag (atom 1))
+
+
+(def in-square (atom false))
 
 ;----------------------------------------------------------------------------------------
 (redefine-action "add center changed event"
@@ -250,16 +258,19 @@
                         @the-map
                         "drag"
                         (fn []
+    (go (if (not @in-square)
                              (dorun
                               (do
+      (reset! in-square true)
                                 (clear "top-right")
                                 (swap! drag inc)
                                 (add-to "top-right" (str "<div>Drag " @drag "</div>"))
                                 (find-places-in-square  (. @the-map getCenter))
+               (reset! in-square false)
                                 []
                                 )
                           )
-                          )))
+                          )))))
 
 
 
