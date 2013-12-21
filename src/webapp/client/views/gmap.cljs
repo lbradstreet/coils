@@ -241,16 +241,17 @@
 (redefine-action
  "add center changed event"
  ;----------------------------------------------------------------------------------------
- (google.maps.event.addListenerOnce
+ (google.maps.event.addListener
   @the-map
-  "drag"
+  ;"drag"
+  "center_changed"
   (fn []
     (go
      (let [center (. @the-map getCenter)]
        (find-places-in-square  center)
        (clear "top-left")
        (clear "top-right")
-       (do-action "add center changed event")
+       ;(do-action "add center changed event")
        []
        )))))
 
