@@ -99,53 +99,54 @@
 ;----------------------------------------------------------------------------------------
 (defn add-corner [& {:keys [id position html]}]
 ;----------------------------------------------------------------------------------------
-    ( .push
-                               (get
-                                (js->clj
-                                (.-controls @the-map)
-                                ) position)
-                               (el "div" {:id id } [
-                                                    (if html html "<div></div>")
-                                                    ])))
+  ( .push
+    (get
+     (js->clj
+      (.-controls @the-map)
+      ) position)
+    (el "div" {:id id :style "width: 200px; height: 100px;"} [
+                         (if html html "<div></div>")
+                         ])))
 
 
 
 
 
 ;----------------------------------------------------------------------------------------
-(redefine-action "add corners"
-;----------------------------------------------------------------------------------------
-                 (let
-                        [
-                         control-div     (el :div {:text "hello"})
-                         control-content (el :div {:text "content"})
-                         ]
-                         (add-to
-                                control-div
-                                control-content)
+(redefine-action
+ "add corners"
+ ;----------------------------------------------------------------------------------------
+ (let
+   [
+    control-div     (el :div {:text "hello"})
+    control-content (el :div {:text "content"})
+    ]
+   (add-to
+    control-div
+    control-content)
 
-                              (add-corner :position   google.maps.ControlPosition.TOP_RIGHT
-                                          :id         "top-right")
+   (add-corner :position   google.maps.ControlPosition.TOP_RIGHT
+               :id         "top-right")
 
-                              (add-corner :position   google.maps.ControlPosition.BOTTOM_CENTER
-                                          :id         "bottom")
+   (add-corner :position   google.maps.ControlPosition.BOTTOM_CENTER
+               :id         "bottom")
 
-                              (add-corner :position   google.maps.ControlPosition.BOTTOM_LEFT
-                                          :id         "bottom-left")
+   (add-corner :position   google.maps.ControlPosition.BOTTOM_LEFT
+               :id         "bottom-left")
 
-                              (add-corner :position   google.maps.ControlPosition.TOP_LEFT
-                                          :id         "top-left"
-                                          :html       (el :div {
-                                                               :style "width: 100%; height: 100%;
-                                                                       background-color: white;
-                                                                       opacity:0.6;
-                                                                       margin: 10px; border: 10px;"
-                                                               }
-                                                          [
-                                                              "<h1>Drag the map</h1>"
-                                                          ]
-                                                      ))
-))
+   (add-corner :position   google.maps.ControlPosition.TOP_LEFT
+               :id         "top-left"
+               :html       (el :div {
+                                     :style "width: 200px; height: 100px;
+                                     background-color: white;
+                                     opacity:0.6;
+                                     margin: 10px; border: 10px;"
+                                     }
+                               [
+                                "<h1>Drag the map</h1>"
+                                ]
+                               ))
+   ))
 
 
 
@@ -174,103 +175,84 @@
 
 
 ;----------------------------------------------------------------------------------------
-(defn bounds-changed []
+(defn bounds-changed [bounds]
 ;----------------------------------------------------------------------------------------
-                          (let [
-                            x (.lng (. @the-map getCenter))
-                            y (.lat (. @the-map getCenter))
-                            bounds (. @the-map getBounds)
-                            sw     (. bounds  getSouthWest )
-                            ne     (. bounds  getNorthEast )
-                            min-x  (. sw lng)
-                            max-x  (. ne lng)
-                            max-y  (. ne lat)
-                            min-y  (. sw lat)
-                            width  (- max-x min-x)
-                            height (- max-y min-y)
+  (go
+   (let [
+         sw     (. bounds  getSouthWest )
+         ne     (. bounds  getNorthEast )
+         min-x  (. sw lng)
+         max-x  (. ne lng)
+         max-y  (. ne lat)
+         min-y  (. sw lat)
+         width  (- max-x min-x)
+         height (- max-y min-y)
 
-                                new-min-x (- min-x width)
-                                new-max-x (+ max-x width)
-                                new-min-y (- min-y height)
-                                new-max-y (+ max-y height)
+         new-min-x (- min-x width)
+         new-max-x (+ max-x width)
+         new-min-y (- min-y height)
+         new-max-y (+ max-y height)
 
-                                ]
-                          (log "***********min-x" min-x)
-                          (log "***********max-x" max-x)
-                          (log "***********min-y" min-y)
-                          (log "***********max-y" max-y)
-                          (log "***********width" height)
-                          (log "***********height" height)
-                          (log "***********new-min-x" new-min-x)
-                          (log "***********new-min-y" new-min-y)
-                          (log "***********new-max-x" new-max-x)
-                          (log "***********new-max-y" new-max-y)
+         ]
 
+     (if (not (is-loaded? bounds))
+       (do
+         (do-action "load places" {
+                                   :min-y new-min-y
+                                   :min-x new-min-x
 
-                          (if (not (is-loaded? bounds))
-                            (do
-                              (do-action "load places" {
-                                                      :min-y new-min-y
-                                                      :min-x new-min-x
+                                   :max-y new-max-y
+                                   :max-x new-max-x
+                                   })
+         (swap! bounds-loaded conj
+                (google.maps.LatLngBounds.
+                 (google.maps.LatLng. new-min-y
+                                      new-min-x)
+                 (google.maps.LatLng. new-max-y
+                                      new-max-x)
 
-                                                      :max-y new-max-y
-                                                      :max-x new-max-x
-                                                      })
-                              (swap! bounds-loaded conj
-                                     (google.maps.LatLngBounds.
-                                       (google.maps.LatLng. new-min-y
-                                                            new-min-x)
-                                       (google.maps.LatLng. new-max-y
-                                                            new-max-x)
+                 )))
 
-                                      )))
+         ;else
+         (do
+           (do-action "update places")))
 
 
-                              (do
-                                (do-action "update places"))
-                            )
-                          (clear "top-left")
-                          (do-action "show center square")
-                          ))
+     ;(clear "top-left")
+     (do-action "show center square")
+)))
 
 
 
 ;----------------------------------------------------------------------------------------
-(redefine-action "add bounds changed event"
+(redefine-action
+ "add bounds changed event"
+ ;----------------------------------------------------------------------------------------
+ (go
+  (google.maps.event.addListener
+    @the-map
+    "bounds_changed"
+    bounds-changed (. @the-map getBounds))))
+
+
+
+
 ;----------------------------------------------------------------------------------------
+(redefine-action
+ "add center changed event"
+ ;----------------------------------------------------------------------------------------
+ (google.maps.event.addListenerOnce
+  @the-map
+  "drag"
+  (fn []
     (go
-       ( google.maps.event.addListener
-                        @the-map
-                        "bounds_changed"
-  bounds-changed  )))
-
-
-
-(def drag (atom 1))
-
-
-(def in-square (atom false))
-
-;----------------------------------------------------------------------------------------
-(redefine-action "add center changed event"
-;----------------------------------------------------------------------------------------
-       ( google.maps.event.addListener
-                        @the-map
-                        "drag"
-                        (fn []
-    (go (if (not @in-square)
-                             (dorun
-                              (do
-      (reset! in-square true)
-                                (clear "top-right")
-                                (swap! drag inc)
-                                (add-to "top-right" (str "<div>Drag " @drag "</div>"))
-                                (find-places-in-square  (. @the-map getCenter))
-               (reset! in-square false)
-                                []
-                                )
-                          )
-                          )))))
+     (let [center (. @the-map getCenter)]
+       (find-places-in-square  center)
+       (clear "top-left")
+       (clear "top-right")
+       (do-action "add center changed event")
+       []
+       )))))
 
 
 
@@ -301,10 +283,10 @@
 
 (comment def b
   (google.maps.LatLngBounds.
-   (google.maps.LatLng. (- (. (. a getSouthWest) lat) 0.01)
-                        (+ (. (. a getSouthWest) lng)) 0.01)
-   (google.maps.LatLng. (+ (. (. a getNorthEast) lat) 0.01)
-                        (- (. (. a getNorthEast) lng) 0.01)
+   (google.maps.LatLng. (- (. (. a getSouthWest) lat) 0.015)
+                        (+ (. (. a getSouthWest) lng)) 0.015)
+   (google.maps.LatLng. (+ (. (. a getNorthEast) lat) 0.015)
+                        (- (. (. a getNorthEast) lng) 0.015)
   )))
 ;(does-bounds-contain-bounds? a b)
 

@@ -218,10 +218,6 @@
 (defn find-places-in-square [center]
 ;-------------------------------------------------------
   (go
-      (add-to "top-left" (str "<div>1</div>"))
-    (do
-      (add-to "top-left" (str "<div>2</div>"))
-      (add-to "top-left" (str "<div>3</div>"))
       (let [
              places   (find-places-in-rectangle
                               :start-x (- (.lng center) 0.001)
@@ -230,10 +226,11 @@
                               :end-y   (+ (.lat center) 0.001)
                               )
            ]
-           (add-to "top-left" (str "<div>4</div>"))
+           (add-to "top-right" (str "<div>Center: " center "</div>"))
            (if (> (count places) 0)
              (do
-               (add-to "top-left" (str "<div>5</div>"))
+               (add-to "top-right" (str "<div>Count: " (count places) "</div>"))
+
                (clear "bottom-left")
                (add-to "bottom-left"
                       (el :div {
@@ -245,16 +242,14 @@
                               (str "<h2><strong>"
                                    (:place-name (get places (first (keys places))))
                                    "</strong></h2>")]))
-               (add-to "top-left" (str "<div>6</div>"))
                (highlight-place
                 :place-id (first (keys places)))
                (commit-place-changes)
-               (add-to "top-left" (str "<div>7</div>"))
-               (add-to "top-left" (str "<div>8</div>"))
+ ;              (add-to "top-left" (str "<div>FIN</div>"))
                []
 
             ;(do-action "color marker" {:id (:id (first places))})
-))))))
+)))))
 
 
 
@@ -279,11 +274,10 @@
                             (.lng (. @the-map getCenter))
                             (.lat (. @the-map getCenter))
                             0.2)))
-;          ii (get-place-id-from-neo4j-index (:id (first places)))
           ]
       (log (str (:id (first places))))))
 
-  ;get-place-id-from-neo4j-index
+
 
   ;(place-has-been-added-to-google-map? 1)
 

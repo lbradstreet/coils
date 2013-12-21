@@ -107,13 +107,15 @@
                           (. js/document getElementById map-element-id)
                           (clj-to-js  (map-options x y))))
 
-   (google.maps.event.addListenerOnce @the-map "idle" (fn []
-                     (do-action "add corners")
-;                     (do-action "load places" {:x x   :y y})
-                     (do-action "add map left click event")
-                     (do-action "add bounds changed event")
-                     (do-action "add center changed event")
-                     (bounds-changed)
+                     (google.maps.event.addListenerOnce
+                      @the-map
+                      "idle"
+                      (fn []
+                        (do-action "add corners")
+                        (do-action "add map left click event")
+                        (do-action "add bounds changed event")
+                        (do-action "add center changed event")
+                        (bounds-changed (. @the-map getBounds))
 )))))))))
 
 
