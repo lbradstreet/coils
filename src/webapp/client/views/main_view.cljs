@@ -88,7 +88,10 @@
    (let [
          map-element-id   "map-content"
          debug-mode       (:value (<! (is-debug?)))
-         place            (if (not (= debug-mode "prod")) copenhagen (<! (get-start-location)))
+         place            (if
+                            (not (= debug-mode "prod"))
+                            copenhagen
+                            (<! (get-start-location)))
          x                (:lon place)
          y                (:lat place)
          ]

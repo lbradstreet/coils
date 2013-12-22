@@ -45,7 +45,7 @@
 (defn map-options [x y]
 ;----------------------------------------------------------------------------------------
                    {
-                    :zoom               14
+                    :zoom               16
                     :center             (google.maps.LatLng.  y x)
                     :mapTypeId          google.maps.MapTypeId.ROADMAP
                     :styles
@@ -232,7 +232,8 @@
   (google.maps.event.addListener
     @the-map
     "bounds_changed"
-    bounds-changed (. @the-map getBounds))))
+    (fn [] (bounds-changed (. @the-map getBounds)))
+    )))
 
 
 
@@ -263,31 +264,3 @@
 ;----------------------------------------------------------------------------------------
 ; DEBUG
 ;----------------------------------------------------------------------------------------
-;(do-action "update places")
-;@bounds-loaded
-
-
-(comment .
- (. @the-map getBounds)
- getSouthWest)
-
-(comment .
- (. @the-map getBounds)
- getNorthEast)
-
-
-;( def a (. @the-map getBounds))
-
-;a
-
-;(is-loaded? a)
-
-(comment def b
-  (google.maps.LatLngBounds.
-   (google.maps.LatLng. (- (. (. a getSouthWest) lat) 0.015)
-                        (+ (. (. a getSouthWest) lng)) 0.015)
-   (google.maps.LatLng. (+ (. (. a getNorthEast) lat) 0.015)
-                        (- (. (. a getNorthEast) lng) 0.015)
-  )))
-;(does-bounds-contain-bounds? a b)
-

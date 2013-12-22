@@ -67,7 +67,20 @@
 
 
 
-
+;-------------------------------------------------------
+(defn add-marker-with-label [x y label]
+;-------------------------------------------------------
+  (js/MarkerWithLabel.
+      (clj->js
+      {
+            :labelContent        label
+            :position            (google.maps.LatLng.  y x)
+            :map                 @the-map
+            :labelStyle          {:opacity      0.75
+                                  :font-size    24}
+            :labelClass "labels"
+          })
+   ))
 
 
 ;-------------------------------------------------------
@@ -151,10 +164,10 @@
   (let
                     [
                        place-details  (get @places place-id)
-                       marker         (google.maps.Marker.
+                       marker2         (comment google.maps.Marker.
                                         (clj->js
                                         {
-                                         :position  (google.maps.LatLng.
+                                          :position  (google.maps.LatLng.
                                                      (:y place-details)
                                                      (:x place-details))
                                           :map       map-arg
@@ -164,6 +177,10 @@
                                                           (red-marker)
                                                           )
                                         }))
+                      marker           (add-marker-with-label
+                                        (:x place-details)
+                                        (:y place-details)
+                                        (:place-name place-details))
                      ]
                      (place-added-to-google-map  :place-id place-id    :marker marker)
                      marker
