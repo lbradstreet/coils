@@ -78,7 +78,7 @@
             :map                 @the-map
             :labelStyle          {:opacity      0.75
                                   :font-size    24}
-            :labelClass "labels"
+            :labelClass "labelMarker"
           })
    ))
 
@@ -243,10 +243,10 @@
                               :end-y   (+ (.lat center) 0.001)
                               )
            ]
-           (add-to "top-right" (str "<div>Center: " center "</div>"))
+           ;(add-to "top-right" (str "<div>Center: " center "</div>"))
            (if (> (count places) 0)
              (do
-               (add-to "top-right" (str "<div>Count: " (count places) "</div>"))
+               ;(add-to "top-right" (str "<div>Count: " (count places) "</div>"))
 
                (clear "bottom-left")
                (add-to "bottom-left"
@@ -309,7 +309,7 @@
           :map                 @the-map
           :labelStyle          {:opacity      0.75
                                 :font-size    24}
-          :labelClass "labels"
+          :labelClass "labelMarker"
         })
  )
 
