@@ -73,7 +73,7 @@
 ;----------------------------------------------------------------------------------------
 (redefine-action "add map left click event"
 ;----------------------------------------------------------------------------------------
-    (google.maps.event.addListener
+    (comment google.maps.event.addListener
        @the-map
        "click"
        (fn [event]
@@ -104,7 +104,7 @@
      (js->clj
       (.-controls @the-map)
       ) position)
-    (el "div" {:id id :style "width: 200px; height: 100px;"} [
+    (el "div" {:id id :style ""} [
                          (if html html "<div></div>")
                          ])))
 
@@ -126,7 +126,23 @@
     control-content)
 
    (add-corner :position   google.maps.ControlPosition.TOP_RIGHT
-               :id         "top-right")
+               :id         "top-right"
+               :html       (el :div {
+                                     :style "width: 30px; height: 30px;
+                                     background-color: white;
+                                     opacity:0.6;
+                                     margin: 10px; border: 10px;"
+
+                                     :onmouseover (fn[]
+(do-action "add place"
+                               {:lat        (.lat (. @the-map getCenter))
+                                :lng        (.lng (. @the-map getCenter))
+                                :element    "bottom-left"})                                                    )
+                                     }
+                               [
+                                "<h1>+</h1>"
+                                ]
+                               ))
 
    (add-corner :position   google.maps.ControlPosition.BOTTOM_CENTER
                :id         "bottom")
@@ -251,7 +267,6 @@
      (let [center (. @the-map getCenter)]
        (find-places-in-square  center)
        (clear "top-left")
-       (clear "top-right")
        ;(do-action "add center changed event")
        []
        )))))

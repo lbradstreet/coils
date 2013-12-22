@@ -11,6 +11,7 @@
     [cljs.core.async.macros :refer [go alt!]])
 
   (:use
+        [webapp.client.globals               :only [center-finder-dist-in-latlng]]
         [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
                                                     header-text body-text
                                                     body-html make-sidebar swap-section  el clear remote
@@ -77,10 +78,12 @@
             :position            (google.maps.LatLng.  y x)
             :map                 @the-map
             :labelStyle          {:opacity      0.75
-                                  :font-size    24}
+                                  :font-size    32}
             :labelClass "labelMarker"
           })
    ))
+
+
 
 
 ;-------------------------------------------------------
@@ -237,10 +240,10 @@
   (go
       (let [
              places   (find-places-in-rectangle
-                              :start-x (- (.lng center) 0.001)
-                              :end-x   (+ (.lng center) 0.001)
-                              :start-y (- (.lat center) 0.001)
-                              :end-y   (+ (.lat center) 0.001)
+                              :start-x (- (.lng center) center-finder-dist-in-latlng)
+                              :end-x   (+ (.lng center) center-finder-dist-in-latlng)
+                              :start-y (- (.lat center) center-finder-dist-in-latlng)
+                              :end-y   (+ (.lat center) center-finder-dist-in-latlng)
                               )
            ]
            ;(add-to "top-right" (str "<div>Center: " center "</div>"))
