@@ -1,8 +1,8 @@
 .labelMarker {
      color: black;
-     border: 0px;
-     border-color: none;
-     background-color: none;
+     border: 4px solid;
+     border-color: white;
+     background-color: white;
      font-family: "Lucida Grande", "Arial", sans-serif;
      font-size: 14px;
      font-weight: bold;

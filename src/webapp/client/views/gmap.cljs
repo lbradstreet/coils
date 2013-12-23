@@ -57,7 +57,7 @@
                      ]
                     :panControl         false
                     :zoomControl        false
-                    :mapTypeControl     false
+                    :mapTypeControl     true
                     :scaleControl       false
                     :streetViewControl  false
                     :overviewMapControl false
@@ -125,22 +125,22 @@
     control-div
     control-content)
 
-   (add-corner :position   google.maps.ControlPosition.TOP_RIGHT
-               :id         "top-right"
+   (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
+               :id         "right-center"
                :html       (el :div {
-                                     :style "width: 30px; height: 30px;
+                                     :style "width2: 30px; height2: 40px;
                                      background-color: white;
                                      opacity:0.6;
-                                     margin: 10px; border: 10px;"
+                                     margin2: 10px; border2: 20px;"
 
-                                     :onmouseover (fn[]
+                                     :onclick (fn[]
 (do-action "add place"
                                {:lat        (.lat (. @the-map getCenter))
                                 :lng        (.lng (. @the-map getCenter))
                                 :element    "bottom-left"})                                                    )
                                      }
                                [
-                                "<h1>+</h1>"
+                                "<h1 style='padding:15px;'>+</h1>"
                                 ]
                                ))
 

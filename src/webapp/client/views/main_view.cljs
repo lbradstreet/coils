@@ -78,7 +78,21 @@
 
 
 
-
+(defn new-center []
+  (go
+   (let [
+         debug-mode       (:value (<! (is-debug?)))
+         place            (if
+                            (not (= debug-mode "prod"))
+                            copenhagen
+                            (<! (get-start-location)))
+         x                (:lon place)
+         y                (:lat place)
+         ]
+     (if (= debug-mode "prod")
+       (. @the-map setCenter (google.maps.LatLng. y x))
+     ))
+   ))
 
 
 ;-------------------------------------------------------
@@ -119,8 +133,18 @@
                         (do-action "add bounds changed event")
                         (do-action "add center changed event")
                         (bounds-changed (. @the-map getBounds))
+
+                        (let [timer (goog.Timer. 30000)]
+                          (do
+                            (. timer (start))
+                            (goog.events/listen
+                             timer
+                             goog.Timer/TICK
+                             new-center)))
+
 )))))))))
 
+;(add-to "top-left" "<div>tick</div>")
 
 
 
