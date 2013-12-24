@@ -269,7 +269,15 @@
                []
 
             ;(do-action "color marker" {:id (:id (first places))})
-)))))
+               )
+
+
+               (do
+                 (clear "bottom-left"))
+
+
+
+             ))))
 
 
 

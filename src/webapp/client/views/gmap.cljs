@@ -125,6 +125,30 @@
     control-div
     control-content)
 
+
+      (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
+               :id         "right-center"
+               :html       (el :div {
+                                     :style "width2: 30px; height2: 40px;
+                                     background-color: white;
+                                     opacity:0.6;
+                                     margin2: 10px; border2: 20px;"
+
+                                     :onclick
+                                     (fn[]
+                                       (swap-section
+                                        "bottom-left"
+                                        "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
+                                        <div>Join - coming soon</div>
+                                        </div>
+                                        ")                                                   )
+                                     }
+                               [
+                                "<h1 style='padding:15px;'>J</h1>"
+                                ]
+                               ))
+
+
    (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
                :id         "right-center"
                :html       (el :div {
@@ -133,22 +157,75 @@
                                      opacity:0.6;
                                      margin2: 10px; border2: 20px;"
 
-                                     :onclick (fn[]
-(do-action "add place"
-                               {:lat        (.lat (. @the-map getCenter))
-                                :lng        (.lng (. @the-map getCenter))
-                                :element    "bottom-left"})                                                    )
+                                     :onclick
+                                     (fn[]
+                                       (do-action
+                                        "add place"
+                                        {:lat        (.lat (. @the-map getCenter))
+                                         :lng        (.lng (. @the-map getCenter))
+                                         :element    "bottom-left"})                                                    )
                                      }
                                [
                                 "<h1 style='padding:15px;'>+</h1>"
                                 ]
                                ))
 
+
+   (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
+               :id         "right-center"
+               :html       (el :div {
+                                     :style "width2: 30px; height2: 40px;
+                                     background-color: white;
+                                     opacity:0.6;
+                                     margin2: 10px; border2: 20px;"
+
+                                     :onclick
+                                     (fn[]
+                                       (swap-section
+                                        "bottom-left"
+                                        "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
+                                        <div>Help:</div>
+                                        <div>Center square selects place</div>
+                                        <div>Accept a place earns you 1 point</div>
+                                        </div>
+                                        ")                                                   )
+                                     }
+                               [
+                                "<h1 style='padding:15px;'>?</h1>"
+                                ]
+                               ))
+
+
+         (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
+               :id         "right-center"
+               :html       (el :div {
+                                     :style "width2: 30px; height2: 40px;
+                                     background-color: white;
+                                     opacity:0.6;
+                                     margin2: 10px; border2: 20px;"
+
+                                     :onclick
+                                     (fn[]
+                                       (swap-section
+                                        "bottom-left"
+                                        "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
+                                        <div>Login - coming soon</div>
+                                        </div>
+                                        ")                                                   )
+                                     }
+                               [
+                                "<h1 style='padding:15px;'>L</h1>"
+                                ]
+                               ))
+
+
+
    (add-corner :position   google.maps.ControlPosition.BOTTOM_CENTER
                :id         "bottom")
 
    (add-corner :position   google.maps.ControlPosition.BOTTOM_LEFT
-               :id         "bottom-left")
+               :id         "bottom-left",
+               :html       "<h1 style='padding:15px;'></h1>")
 
    (add-corner :position   google.maps.ControlPosition.TOP_LEFT
                :id         "top-left"

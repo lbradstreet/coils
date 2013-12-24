@@ -2,6 +2,7 @@
     (:require
         [webapp.client.session]
         [webapp.client.model]
+        [webapp.client.neo-stuff]
         [webapp.client.views.main-view]
         [webapp.client.views.gmap]
         [webapp.client.views.html]
