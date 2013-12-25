@@ -22,6 +22,8 @@
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.gmap            :only [map-options bounds-changed]]
         [webapp.client.views.spatial         :only [copenhagen london]]
+        [webapp.client.globals               :only [tracking]]
+
     )
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
@@ -80,6 +82,7 @@
 
 (defn new-center []
   (go
+   (if @tracking
    (let [
          debug-mode       (:value (<! (is-debug?)))
          place            (if
@@ -90,9 +93,9 @@
          y                (:lat place)
          ]
      (if (= debug-mode "prod")
-       (. @the-map setCenter (google.maps.LatLng. y x))
+       (. @the-map panTo (google.maps.LatLng. y x))
      ))
-   ))
+   )))
 
 
 ;-------------------------------------------------------
@@ -134,7 +137,7 @@
                         (do-action "add center changed event")
                         (bounds-changed (. @the-map getBounds))
 
-                        (let [timer (goog.Timer. 30000)]
+                        (let [timer (goog.Timer. 10000)]
                           (do
                             (. timer (start))
                             (goog.events/listen

@@ -21,6 +21,8 @@
         [webapp.client.views.html            :only [map-html]]
         [webapp.client.views.spatial         :only []]
         [webapp.client.views.markers         :only [find-places-in-square]]
+        [webapp.client.globals               :only [tracking]]
+
 
     )
     (:use-macros
@@ -112,6 +114,36 @@
 
 
 
+(defn tracking-button-html []
+  (el :div {
+            :style (str "width2: 30px; height2: 40px;
+                        background-color:"
+                        (if @tracking "lightgreen" "pink")
+                        ";
+                        opacity:0.6;
+                        margin2: 10px; border2: 20px;")
+
+            :onclick
+            (fn[]
+              (swap-section
+               "bottom-left"
+               (str "<div style='border: 10px solid lightgray;background-color: "
+                    (if @tracking "pink" "lightgreen")
+                    "; padding-bottom:50px; margin: 5px;'>
+                    <div>"
+                    (if @tracking "Tracking turned off" "Tracking turned on")
+                    "</div>
+                    </div>
+                    "))
+                (reset! tracking (not @tracking))
+                (swap-section "tracker_button" (tracking-button-html))
+              )
+            }
+      [
+       "<h1 style='padding:15px;'>T</h1>"
+       ]
+      ))
+
 ;----------------------------------------------------------------------------------------
 (redefine-action
  "add corners"
@@ -126,27 +158,29 @@
     control-content)
 
 
-      (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
-               :id         "right-center"
-               :html       (el :div {
-                                     :style "width2: 30px; height2: 40px;
-                                     background-color: white;
-                                     opacity:0.6;
-                                     margin2: 10px; border2: 20px;"
+   (add-corner
+    :position   google.maps.ControlPosition.RIGHT_CENTER
+    :id         "right-center"
+    :html       (el
+                 :div {
+                       :style "width2: 30px; height2: 40px;
+                       background-color: white;
+                       opacity:0.6;
+                       margin2: 10px; border2: 20px;"
 
-                                     :onclick
-                                     (fn[]
-                                       (swap-section
-                                        "bottom-left"
-                                        "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
-                                        <div>Join - coming soon</div>
-                                        </div>
-                                        ")                                                   )
-                                     }
-                               [
-                                "<h1 style='padding:15px;'>J</h1>"
-                                ]
-                               ))
+                       :onclick
+                       (fn[]
+                         (swap-section
+                          "bottom-left"
+                          "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
+                          <div>Login and Join - coming soon</div>
+                          </div>
+                          ")                                                   )
+                       }
+                 [
+                  "<h1 style='padding:15px;'>ME</h1>"
+                  ]
+                 ))
 
 
    (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
@@ -198,24 +232,8 @@
 
          (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
                :id         "right-center"
-               :html       (el :div {
-                                     :style "width2: 30px; height2: 40px;
-                                     background-color: white;
-                                     opacity:0.6;
-                                     margin2: 10px; border2: 20px;"
-
-                                     :onclick
-                                     (fn[]
-                                       (swap-section
-                                        "bottom-left"
-                                        "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
-                                        <div>Login - coming soon</div>
-                                        </div>
-                                        ")                                                   )
-                                     }
-                               [
-                                "<h1 style='padding:15px;'>L</h1>"
-                                ]
+               :html       (el :div {:id "tracker_button" }
+                               [(tracking-button-html)]
                                ))
 
 

@@ -39,22 +39,34 @@
 
 
 (redefine-action "show center square"
-  (add-to "main"
-        (str
-            "<div"
-            "    style='"
-            "           left:        calc(50% - 1em);"
-            "           top:         calc(50% - 1.75em);"
-            "           position:    absolute;"
-            "           z-index:     400;"
-            "           height:      2em;"
-            "           width:       2em;"
-            "           border:      1px dotted black;"
-            "'>"
-            "</div>"
-         )
-  )
-)
+  (do
+    (add-to "main"
+          (str
+              "<div"
+              "    style='"
+              "           left:        calc(50% - 1em);"
+              "           top:         calc(50% - 1.75em);"
+              "           position:    absolute;"
+              "           z-index:     400;"
+              "           height:      2em;"
+              "           width:       2em;"
+              "           border:      2px dotted black;"
+              "'>"
+              "</div>"))
+    (add-to "main"
+          (str
+              "<div"
+              "    style='"
+              "           left:        calc(50% - 1.1em);"
+              "           top:         calc(50% - 1.76em);"
+              "           position:    absolute;"
+              "           z-index:     400;"
+              "           height:      2em;"
+              "           width:       2em;"
+              "           border:      2px dotted white;"
+              "'>"
+              "</div>"))
+))
 ;(show-center-square)
 
 

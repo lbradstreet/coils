@@ -10,3 +10,5 @@
 
 
 (def center-finder-dist-in-latlng    0.0005)
+
+(def tracking (atom false))
