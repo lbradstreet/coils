@@ -174,6 +174,13 @@
                           "bottom-left"
                           "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
                           <div>Login and Join - coming soon</div>
+
+
+                          <form action='/file' method='post' enctype='multipart/form-data'>
+                              <input name='file' type='file' accept='image/*' capture='camera'>
+                          </form>
+
+                          </input>
                           </div>
                           ")                                                   )
                        }

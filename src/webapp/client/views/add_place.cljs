@@ -116,6 +116,7 @@
                }
 
          [
+          (el :form {} [
              (el :div {:class "form-group"} [
               "<input  id='place-name-input'
                        type='text'
@@ -143,7 +144,7 @@
                        :text "Cancel"
                        :onclick #(do-action "Cancel add place")})
 
-        ])
+        ])])
     )
     (swap! markers conj {:marker marker :x lng :y lat})
     marker
