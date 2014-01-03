@@ -1,35 +1,37 @@
 (ns webapp.client.views.gmap
- (:refer-clojure :exclude [val empty remove find next parents])
-    (:require
-        [cljs.reader                     :as reader]
-        [crate.core                      :as crate]
-        [cljs.core.async                 :as async :refer [chan close!]]
-        [webapp.framework.client.neo4j   :as neo4j]
-    )
+  (:refer-clojure :exclude [val empty remove find next parents])
+  (:require
+   [cljs.reader                     :as reader]
+   [crate.core                      :as crate]
+   [cljs.core.async                 :as async :refer [chan close!]]
+   [webapp.framework.client.neo4j   :as neo4j]
+   [goog.net.IframeIo]
+   )
 
   (:require-macros
-    [cljs.core.async.macros :refer [go alt!]])
+   [cljs.core.async.macros :refer [go alt!]])
 
   (:use
-        [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
-                                                    header-text body-text
-                                                    body-html make-sidebar swap-section  el clear remote
-                                                    value-of add-to show-popover log]]
-        [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
-        [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
-        [webapp.client.session               :only [the-map]]
-        [webapp.client.views.html            :only [map-html]]
-        [webapp.client.views.spatial         :only []]
-        [webapp.client.views.markers         :only [find-places-in-square]]
-        [webapp.client.globals               :only [tracking]]
+   [webapp.framework.client.coreclient  :only [popup do-before-remove-element new-dom-id find-el clj-to-js sql-fn
+                                               header-text body-text
+                                               body-html make-sidebar swap-section  el clear remote
+                                               value-of add-to show-popover log
+                                               send-request2 on-click-fn]]
+   [jayq.core                           :only [attr $ css append fade-out fade-in empty]]
+   [webapp.framework.client.eventbus    :only [do-action esb undefine-action]]
+   [webapp.client.session               :only [the-map]]
+   [webapp.client.views.html            :only [map-html]]
+   [webapp.client.views.spatial         :only []]
+   [webapp.client.views.markers         :only [find-places-in-square]]
+   [webapp.client.globals               :only [tracking]]
 
 
-    )
-    (:use-macros
-        [webapp.framework.client.eventbus    :only [define-action redefine-action]]
-        [webapp.framework.client.coreclient  :only [ns-coils defn-html on-click on-mouseover sql log]]
-     )
-)
+   )
+  (:use-macros
+   [webapp.framework.client.eventbus    :only [define-action redefine-action]]
+   [webapp.framework.client.coreclient  :only [ns-coils defn-html on-click on-mouseover sql log]]
+   )
+  )
 (ns-coils 'webapp.client.views.gmap)
 
 
@@ -37,7 +39,7 @@
 
 ;----------------------------------------------------------------------------------------
 (def bounds-loaded
-;----------------------------------------------------------------------------------------
+  ;----------------------------------------------------------------------------------------
   (atom []))
 
 
@@ -45,25 +47,25 @@
 
 ;----------------------------------------------------------------------------------------
 (defn map-options [x y]
-;----------------------------------------------------------------------------------------
-                   {
-                    :zoom               16
-                    :center             (google.maps.LatLng.  y x)
-                    :mapTypeId          google.maps.MapTypeId.ROADMAP
-                    :styles
-                    [
-                     {
-                      :featureType "poi"
-                      :stylers     [{ :visibility "off" }]
-                      }
-                     ]
-                    :panControl         false
-                    :zoomControl        false
-                    :mapTypeControl     true
-                    :scaleControl       false
-                    :streetViewControl  false
-                    :overviewMapControl false
-                    })
+  ;----------------------------------------------------------------------------------------
+  {
+   :zoom               16
+   :center             (google.maps.LatLng.  y x)
+   :mapTypeId          google.maps.MapTypeId.ROADMAP
+   :styles
+   [
+    {
+     :featureType "poi"
+     :stylers     [{ :visibility "off" }]
+     }
+    ]
+   :panControl         false
+   :zoomControl        false
+   :mapTypeControl     true
+   :scaleControl       false
+   :streetViewControl  false
+   :overviewMapControl false
+   })
 
 
 
@@ -74,23 +76,23 @@
 
 ;----------------------------------------------------------------------------------------
 (redefine-action "add map left click event"
-;----------------------------------------------------------------------------------------
-    (comment google.maps.event.addListener
-       @the-map
-       "click"
-       (fn [event]
-           (go
-               (let [
-                     lat-lng      (.-latLng event)
-                     lat          (.lat lat-lng)
-                     lng          (.lng lat-lng)
-                    ]
-                    (. @the-map  panTo (google.maps.LatLng. lat lng))
-                    (do-action "add place"
-                               {:lat        lat
-                                :lng        lng
-                                :element    "bottom-left"})
-)))))
+                 ;----------------------------------------------------------------------------------------
+                 (comment google.maps.event.addListener
+                   @the-map
+                   "click"
+                   (fn [event]
+                     (go
+                      (let [
+                            lat-lng      (.-latLng event)
+                            lat          (.lat lat-lng)
+                            lng          (.lng lat-lng)
+                            ]
+                        (. @the-map  panTo (google.maps.LatLng. lat lng))
+                        (do-action "add place"
+                                   {:lat        lat
+                                    :lng        lng
+                                    :element    "bottom-left"})
+                        )))))
 
 
 
@@ -100,15 +102,15 @@
 
 ;----------------------------------------------------------------------------------------
 (defn add-corner [& {:keys [id position html]}]
-;----------------------------------------------------------------------------------------
+  ;----------------------------------------------------------------------------------------
   ( .push
     (get
      (js->clj
       (.-controls @the-map)
       ) position)
     (el "div" {:id id :style ""} [
-                         (if html html "<div></div>")
-                         ])))
+                                  (if html html "<div></div>")
+                                  ])))
 
 
 
@@ -135,14 +137,90 @@
                     "</div>
                     </div>
                     "))
-                (reset! tracking (not @tracking))
-                (swap-section "tracker_button" (tracking-button-html))
+              (reset! tracking (not @tracking))
+              (swap-section "tracker_button" (tracking-button-html))
               )
             }
       [
        "<h1 style='padding:15px;'>T</h1>"
        ]
       ))
+
+
+
+
+
+
+;(goog.net.IframeIo.)
+
+
+;send-request2
+
+;(send-request2 "file?file=fdsfsfd")
+
+
+
+
+;(find-el "picture-form")
+
+; goog.net.EventType/COMPLETE
+
+;   (value-of "file")
+(comment
+  let [
+       io   (goog.net.IframeIo.)
+       ]
+  (goog.events.listen
+   io
+   goog.net.EventType/COMPLETE
+   (fn[e]
+     (send-request2
+      "service-get-picture-name"
+      {
+       :session-id    (fn [] (oe/get-web-session-id))
+       :cv-id         (fn [] (cv :id))
+       }
+      (fn[reply]
+        (do
+          ;(js/alert (pr-str reply))
+          (show-existing-picture
+           (find-el "existing-picture-element")
+           (:picture reply)
+           (cv :id)
+           translate)
+
+          (goog.dom.removeChildren  photo-element )
+          (dom/add
+           photo-element
+           (dom/el "img"
+                   {
+                    :src (str (oe/sending-address )
+                              "images/ojobs/"
+                              (reply :picture)
+                              "?time=" (dom/get-time))
+                    :width "200"
+                    :class "rounded-corners"
+                    }))
+          (oe/set-cv-dirty true ))
+        ))))
+  ;(js/alert (str "FILE: " ))
+  (. io sendFromForm
+     (dom/find-el "picture-form")
+     (str (oe/sending-address)
+          "ojobsfileupload"
+          "?action=fileupload&user-id=" (cv :id)
+          "&x=" (value-of "x1")
+          "&y=" (value-of "y1")
+          "&x2=" (value-of "x2")
+          "&y2=" (value-of "y2")
+
+          )
+
+     )
+  )
+
+
+
 
 ;----------------------------------------------------------------------------------------
 (redefine-action
@@ -172,22 +250,52 @@
                        (fn[]
                          (swap-section
                           "bottom-left"
-                          "<div style='border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;'>
-                          <div>Login and Join - coming soon</div>
+                          (el :div {:style "border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;"}
+                              [
+                               (el :div {}
+                                   [
+                                    "<div style=''>
+                                    <div>Login and Join - coming soon</div>
 
 
-                          <form action='/file' method='post' enctype='multipart/form-data'>
-                              <input name='file' type='file' accept='image/*' capture='camera'>
-                          </form>
+                                    <form id='picture-form' action='/file' method='post' enctype='multipart/form-data'>
+                                    <input id='file' name='file' type='file' accept='image/*' capture='camera'>
+                                    </input>
+                                    </form>
+                                    </div>
+                                    "
+                                    ])
+                               (el :div {
+                                         :id     "upload_file"
+                                         :text   "upload"
+                                         :onclick
+                                         (fn[]
 
-                          </input>
-                          </div>
-                          ")                                                   )
-                       }
+                                           (let [
+                                                 io   (goog.net.IframeIo.)
+                                                 ]
+                                             (goog.events.listen
+                                              io
+                                              goog.net.EventType/COMPLETE
+                                              (fn[e] (log "Uploaded")))
+
+                                             (. io sendFromForm
+                                                (find-el "picture-form")
+                                                (str
+                                                 ""
+                                                 "file"
+                                                 "?file=vvxvxfgdfgd"
+                                                 )))
+                                           )
+                                         })
+                               ])))}
+
                  [
                   "<h1 style='padding:15px;'>ME</h1>"
+
                   ]
                  ))
+
 
 
    (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
@@ -237,7 +345,7 @@
                                ))
 
 
-         (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
+   (add-corner :position   google.maps.ControlPosition.RIGHT_CENTER
                :id         "right-center"
                :html       (el :div {:id "tracker_button" }
                                [(tracking-button-html)]
@@ -273,28 +381,28 @@
 
 (defn does-bounds-contain-bounds? [larger smaller]
   (cond
-     (< (. (. smaller getSouthWest) lng)   (. (. larger getSouthWest) lng)) false
-     (< (. (. smaller getSouthWest) lat)   (. (. larger getSouthWest) lat)) false
+   (< (. (. smaller getSouthWest) lng)   (. (. larger getSouthWest) lng)) false
+   (< (. (. smaller getSouthWest) lat)   (. (. larger getSouthWest) lat)) false
 
-     (> (. (. smaller getNorthEast) lng)   (. (. larger getNorthEast) lng)) false
-     (> (. (. smaller getNorthEast) lat)   (. (. larger getNorthEast) lat)) false
-     :else true
+   (> (. (. smaller getNorthEast) lng)   (. (. larger getNorthEast) lng)) false
+   (> (. (. smaller getNorthEast) lat)   (. (. larger getNorthEast) lat)) false
+   :else true
+   )
   )
-)
 
 
 
 (defn is-loaded? [b2]
-    (some
-     (fn [b] (does-bounds-contain-bounds? b b2))
-     @bounds-loaded))
+  (some
+   (fn [b] (does-bounds-contain-bounds? b b2))
+   @bounds-loaded))
 
 
 
 
 ;----------------------------------------------------------------------------------------
 (defn bounds-changed [bounds]
-;----------------------------------------------------------------------------------------
+  ;----------------------------------------------------------------------------------------
   (go
    (let [
          sw     (. bounds  getSouthWest )
@@ -331,14 +439,14 @@
 
                  )))
 
-         ;else
-         (do
-           (do-action "update places")))
+       ;else
+       (do
+         (do-action "update places")))
 
 
      ;(clear "top-left")
      (do-action "show center square")
-)))
+     )))
 
 
 
@@ -348,10 +456,10 @@
  ;----------------------------------------------------------------------------------------
  (go
   (google.maps.event.addListener
-    @the-map
-    "bounds_changed"
-    (fn [] (bounds-changed (. @the-map getBounds)))
-    )))
+   @the-map
+   "bounds_changed"
+   (fn [] (bounds-changed (. @the-map getBounds)))
+   )))
 
 
 

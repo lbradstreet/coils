@@ -10,7 +10,7 @@
     )
     (:use
         [webapp.framework.client.coreclient :only  [body-html new-dom-id debug popup hide-popovers
-                                                    show-popover set-text value-of find-el sql-fn neo4j-fn
+                                                    show-popover set-text value-of find-el sql-fn
                                                     swap-section el clear remote  add-to on-mouseover-fn on-click-fn]]
         [jayq.core                          :only  [$ css  append fade-out fade-in empty attr bind]]
         [webapp.framework.client.eventbus   :only  [do-action esb undefine-action]]
@@ -20,7 +20,7 @@
     [cljs.core.async.macros :refer                 [go alt!]])
   (:use-macros
         [webapp.framework.client.eventbus :only    [redefine-action define-action]]
-        [webapp.framework.client.coreclient :only  [ns-coils on-click on-mouseover sql defn-html neo4j]]
+        [webapp.framework.client.coreclient :only  [ns-coils on-click on-mouseover sql defn-html]]
      )
 )
 (ns-coils 'webapp.client.views.loginpanel)

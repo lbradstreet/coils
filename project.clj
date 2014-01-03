@@ -3,7 +3,7 @@
                    [org.clojure/clojure "1.5.1"]
                    [org.clojure/google-closure-library-third-party "0.0-2029"]
                    [org.clojure/tools.reader "0.7.10"]
-                   [domina "1.0.1"]
+                   [domina "1.0.2"]
                    [crate "0.2.4"]
                    [prismatic/dommy "0.1.1"]
                    [korma "0.3.0-RC5"]
@@ -11,7 +11,8 @@
                    [compojure "1.1.5"]
                    [shoreleave "0.3.0"]
                    [shoreleave/shoreleave-remote-ring "0.3.0"]
-                   [ring-middleware-format "0.3.0"]
+                   [ring "1.2.1"]
+                   [ring-middleware-format "0.3.1"]
                    [ring/ring-json "0.2.0"]
                    [jayq "2.4.0"]
                    [clojurewerkz/neocons "2.0.0-beta3"]
@@ -27,9 +28,9 @@
   :url "http://org.clojars.zubair2/webdb"
 
   :plugins  [
-               [lein-cljsbuild "0.3.0"]
+               [lein-cljsbuild "1.0.1"]
                [lein-httpd "1.0.0"]
-               [lein-ring "0.8.5"]
+               [lein-ring "0.8.8"]
             ]
 
   :profiles {
