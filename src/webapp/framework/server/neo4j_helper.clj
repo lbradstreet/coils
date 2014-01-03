@@ -208,6 +208,31 @@
 
 
 
+(defn parse-int [s]
+   (Integer. (re-find  #"\d+" s )))
+
+
+
+(defn id-from-node-url [s]
+    (let [
+          io    (.indexOf s "data/node/")
+          ss    (.substring s (+ io 10))
+          pi    (parse-int ss)
+          ]
+      pi
+      )
+  )
+
+(defn id-from-relationship-url [s]
+    (let [
+          io    (.indexOf s "data/relationship/")
+          ss    (.substring s (+ io 18))
+          pi    (parse-int ss)
+          ]
+      pi
+      )
+  )
+
 
 
 
@@ -225,16 +250,11 @@
 
 
 
-(defn parse-int [s]
-   (Integer. (re-find  #"\d+" s )))
-
 
 (defn neo-id [node]
     (let [
           s     (:self node)
-          io    (.indexOf s "data/node/")
-          ss    (.substring s (+ io 10))
-          pi    (parse-int ss)
+          pi    (id-from-node-url s)
           ]
       pi
       )
@@ -311,7 +331,31 @@
 
 
 (defn relationships [node-id]
-  (nrl/all-for node-id))
+  (map
+   (fn[rel-id]
+     (let [rel     (nrl/get rel-id)
+           start   (id-from-node-url (:start rel))
+           ]
+       {
+        :id      rel-id
+        :type    (:type rel)
+        :from   start
+        :to   (id-from-node-url (:end rel))
+        :is   (cond
+               (= node-id start)  "outgoing"
+               :else              "incoming")
+        }
+       ))
+
+   (nrl/all-ids-for node-id)
+   ))
+
+
+
+ (relationships 34357)
+
+
+
 
 (let [
       user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
@@ -333,10 +377,10 @@
       nil)))
 
 
-(get-node 34427)
+(get-node 320027)
 
 
-(relationships 34357)
+
 
 
 (defn neo-incoming [x k] (-> x (neo-data) (get k) :incoming_relationships))
