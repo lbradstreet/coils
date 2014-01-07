@@ -172,6 +172,8 @@
 
 
 
+
+
 ;--------------------------------------------------------------
 (defn find-names-within-distance [layer x y dist-km]
 ;--------------------------------------------------------------
@@ -186,6 +188,8 @@
          }))
 
     (find-within-distance layer x y dist-km)))
+
+
 
 
 
@@ -208,12 +212,24 @@
 
 
 
+
+
+
+
+
+;--------------------------------------------------------------
 (defn parse-int [s]
+;--------------------------------------------------------------
    (Integer. (re-find  #"\d+" s )))
 
 
 
+
+
+
+;--------------------------------------------------------------
 (defn id-from-node-url [s]
+;--------------------------------------------------------------
     (let [
           io    (.indexOf s "data/node/")
           ss    (.substring s (+ io 10))
@@ -223,7 +239,13 @@
       )
   )
 
+
+
+
+
+;--------------------------------------------------------------
 (defn id-from-relationship-url [s]
+;--------------------------------------------------------------
     (let [
           io    (.indexOf s "data/relationship/")
           ss    (.substring s (+ io 18))
@@ -251,7 +273,9 @@
 
 
 
+;--------------------------------------------------------------
 (defn neo-id [node]
+;--------------------------------------------------------------
     (let [
           s     (:self node)
           pi    (id-from-node-url s)
@@ -262,9 +286,30 @@
 
 
 
-(defn neo-keys [x] (-> x (neo-data) (keys)))
-(defn neo-result [x k] (-> x (neo-data) (get k)))
-(defn neo-result-keys [x k] (-> x (neo-data) (get k) (keys)))
+;--------------------------------------------------------------
+(defn neo-keys [x]
+;--------------------------------------------------------------
+  (-> x (neo-data) (keys)))
+
+
+
+
+;--------------------------------------------------------------
+(defn neo-result [x k]
+;--------------------------------------------------------------
+  (-> x (neo-data) (get k)))
+
+
+
+
+
+;--------------------------------------------------------------
+(defn neo-result-keys [x k]
+;--------------------------------------------------------------
+  (-> x (neo-data) (get k) (keys)))
+
+
+
 
 
 
@@ -277,6 +322,10 @@
      (get n :data)
      {:id (neo-id  n) }
 )))
+
+
+
+
 
 
 
@@ -309,6 +358,11 @@
 
   )
 
+
+
+
+
+
 ;----------------------------------------------------------
 (defn get-value [neo4j-query]
   ;----------------------------------------------------------
@@ -319,18 +373,20 @@
    ))
 
 
- (get-value "CREATE (x:User {name: \"Zubair\"}) RETURN count (x);")
 
 
-(neo-data
-(cy/query "CREATE (x:User {name: \"Zubair\"}) RETURN COUNT(x);" {}))
 
+
+;--------------------------------------------------------------
 (defn link [start-node   link-details    end-node]
+;--------------------------------------------------------------
     (nrl/create start-node   end-node   link-details)
 )
 
 
+;--------------------------------------------------------------
 (defn relationships [node-id]
+;--------------------------------------------------------------
   (map
    (fn[rel-id]
      (let [rel     (nrl/get rel-id)
@@ -352,39 +408,49 @@
 
 
 
- (relationships 34357)
+
+
+
+;--------------------------------------------------------------
+(defn record [properties]
+;--------------------------------------------------------------
+  (let [data (dissoc properties :type)]
+    (neo-node-data
+     (cy/query (str
+                "CREATE (new_record:"
+                (:type properties)
+                " {props}) RETURN new_record;")
+               {:props data})
+     )))
 
 
 
 
-(let [
-      user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
-      web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
-      email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
-      email-login2   (node  "CREATE (x:Authorisation {email: \"jack@gmail.com\"}) RETURN x;")
-      _              (link  web-session  "for"  user )
-      _              (link  user  "has login"  email-login )
-      _              (link  user  "has login"  email-login2 )
-      ]
-  user
-  )
-
-
+;--------------------------------------------------------------
 (defn get-node [x]
+;--------------------------------------------------------------
   (try
     (node  "START n = node({node_id}) RETURN n" {:node_id x})
     (catch Exception e
       nil)))
 
 
-(get-node 320027)
 
 
 
 
+;--------------------------------------------------------------
+(defn neo-incoming [x k]
+  ;--------------------------------------------------------------
+  (-> x (neo-data) (get k) :incoming_relationships))
 
-(defn neo-incoming [x k] (-> x (neo-data) (get k) :incoming_relationships))
-(defn neo-outgoing [x k] (-> x (neo-data) (get k) :outgoing_relationships))
+
+
+
+;--------------------------------------------------------------
+(defn neo-outgoing [x k]
+  ;--------------------------------------------------------------
+  (-> x (neo-data) (get k) :outgoing_relationships))
 
 
 
@@ -396,8 +462,50 @@
 
 
 ;----------------------------------------------------------
+;
 ; debug stuff
 ;----------------------------------------------------------
+
+
+(let [
+      user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
+      web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
+      email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
+      email-login2   (record {
+                                :type     "Authorisation"
+                                :email    "johnny@gmail.com"
+                             })
+      _              (link  web-session  "for"  user )
+      _              (link  user  "has login"  email-login )
+      _              (link  user  "has login"  email-login2 )
+      ]
+  [user
+   web-session
+   email-login
+   email-login2]
+  )
+
+
+
+(get-node 34509)
+
+
+(neo-data
+ (cy/query "CREATE (x:User {name: \"Zubair\"}) RETURN COUNT(x);" {}))
+
+(get-value "CREATE (x:User {name: \"Zubair\"}) RETURN count (x);")
+
+
+
+
+
+ (relationships 34357)
+
+
+
+
+
+
 
 ;(get-layer "ore2")
 ;(add-to-simple-layer "McDonalds" -10.1 -1.0 "ore2")
@@ -435,14 +543,6 @@
 
 
 
-(defn neo4j-add [table-name properties]
-  (neo-node-data
-   (cy/tquery (str
-               "CREATE (new_record:"
-               table-name
-               " {props}) RETURN new_record;")
-              {:props properties})
-   "new_record"))
 
 ;(neo4j-add "users" {:name "Zubair"})
 
