@@ -18,6 +18,7 @@
             [clojurewerkz.neocons.rest.records  :refer :all])
   (:import  [java.net URI URL]
             clojurewerkz.neocons.rest.Neo4JEndpoint)
+  (:use [clojure.pprint])
 
 )
 
@@ -412,16 +413,28 @@
 
 
 ;--------------------------------------------------------------
-(defn record [properties]
+(defn insert
 ;--------------------------------------------------------------
+  ([type-name properties]
   (let [data (dissoc properties :type)]
     (neo-node-data
      (cy/query (str
                 "CREATE (new_record:"
-                (:type properties)
+                type-name
                 " {props}) RETURN new_record;")
                {:props data})
      )))
+
+    ([properties]
+     (let [data (dissoc properties :type)]
+       (neo-node-data
+        (cy/query (str
+                   "CREATE (new_record"
+                   " {props}) RETURN new_record;")
+                  {:props data})
+        )))
+
+  )
 
 
 
@@ -456,7 +469,9 @@
 
 
 
-
+(defn count-records [table-name]
+  (get-value (str "match (x:" table-name ") return count(x);"))
+)
 
 
 
@@ -479,22 +494,33 @@
       _              (link  user  "has login"  email-login )
       _              (link  user  "has login"  email-login2 )
       ]
+  (print-table [user])
   [user
    web-session
    email-login
    email-login2]
   )
 
+;(print-table [{:a 1 :b 2} {}])
 
 
-(get-node 34509)
+;(insert "Users" {:name "Zubair"})
+
+;(count-records "Users")
 
 
-(neo-data
+;(get-node 34509)
+
+
+(comment neo-data
  (cy/query "CREATE (x:User {name: \"Zubair\"}) RETURN COUNT(x);" {}))
 
-(get-value "CREATE (x:User {name: \"Zubair\"}) RETURN count (x);")
+(comment get-value "CREATE (x:User {name: \"Zubair\"}) RETURN count (x);")
 
+
+(comment cy/query "match (x:User) return count(*);" {})
+
+(comment get-value "match (x:User) return count(x);")
 
 
 

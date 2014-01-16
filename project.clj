@@ -18,7 +18,7 @@
                    [clojurewerkz/neocons "2.0.0-beta3"]
                    [facts/speech-synthesis "1.0.0"]
                    [org.clojure/clojurescript "0.0-2030"]
-                   [org.clojure/core.async "0.1.242.0-44b1e3-alpha"]
+                   [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                    [rewrite-clj "0.2.0"]
                    [org.jasypt/jasypt "1.8"]
                    [clj-http "0.7.6"]
