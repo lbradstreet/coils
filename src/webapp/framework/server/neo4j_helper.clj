@@ -413,7 +413,7 @@
 
 
 ;--------------------------------------------------------------
-(defn insert
+(defn create
 ;--------------------------------------------------------------
   ([type-name properties]
   (let [data (dissoc properties :type)]
@@ -486,7 +486,7 @@
       user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
       web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
       email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
-      email-login2   (record {
+      email-login2   (create {
                                 :type     "Authorisation"
                                 :email    "johnny@gmail.com"
                              })
