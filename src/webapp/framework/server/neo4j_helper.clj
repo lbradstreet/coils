@@ -413,7 +413,7 @@
 
 
 ;--------------------------------------------------------------
-(defn create
+(defn insert-record
 ;--------------------------------------------------------------
   ([type-name properties]
   (let [data (dissoc properties :type)]
@@ -473,6 +473,43 @@
   (get-value (str "match (x:" table-name ") return count(x);"))
 )
 
+ (defn query-record-data [r]
+   (:data (first
+           r)
+   )
+ )
+
+(defn get-query-records [q]
+     (:data q))
+
+(defn get-records
+  [& {:keys
+      [
+       table
+       limit
+       ]
+      :or
+      {
+       limit 10
+       }
+      }
+   ]
+  (let
+    [
+     results             (map
+                          query-record-data
+                          (->
+                           (cy/query (str "match (x:" table ") return x;" ))
+                           get-query-records
+                           ))
+     limited-results     (cond
+                          (= limit -1) results
+                          :else (take limit results)
+                          )
+     ]
+    limited-results)
+  )
+
 
 
 
@@ -486,7 +523,7 @@
       user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
       web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
       email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
-      email-login2   (create {
+      email-login2   (insert-record {
                                 :type     "Authorisation"
                                 :email    "johnny@gmail.com"
                              })
@@ -504,10 +541,17 @@
 ;(print-table [{:a 1 :b 2} {}])
 
 
-;(insert "Users" {:name "Zubair"})
+;(create "Users" {:name "Zubair2"})
 
-;(count-records "Users")
+(count-records "Users")
 
+
+
+
+
+
+
+(get-records :table "Users")
 
 ;(get-node 34509)
 
