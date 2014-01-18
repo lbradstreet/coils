@@ -25,6 +25,8 @@
 
 
 
+
+
 ;--------------------------------------------------------------
 ; connect to neo4j if available
 ;--------------------------------------------------------------
@@ -287,27 +289,6 @@
 
 
 
-;--------------------------------------------------------------
-(defn neo-keys [x]
-;--------------------------------------------------------------
-  (-> x (neo-data) (keys)))
-
-
-
-
-;--------------------------------------------------------------
-(defn neo-result [x k]
-;--------------------------------------------------------------
-  (-> x (neo-data) (get k)))
-
-
-
-
-
-;--------------------------------------------------------------
-(defn neo-result-keys [x k]
-;--------------------------------------------------------------
-  (-> x (neo-data) (get k) (keys)))
 
 
 
@@ -469,18 +450,36 @@
 
 
 
-(defn count-records [table-name]
-  (get-value (str "match (x:" table-name ") return count(x);"))
+(defn count-records
+   [& {:keys
+      [
+       table
+       ]
+      }
+   ]
+
+  (get-value (str "match (x:" table ") return count(x);"))
 )
 
- (defn query-record-data [r]
-   (:data (first
-           r)
-   )
- )
+(defn id-from-query-result-record [r]
+  (id-from-node-url (:self (first r))))
 
-(defn get-query-records [q]
+
+(defn query-record-data [r]
+  (let
+    [
+     data-part   (:data (first r))
+     id          {:id (id-from-query-result-record r)}
+     ]
+    (merge id data-part)
+ ))
+
+
+
+ (defn get-query-records [q]
      (:data q))
+
+
 
 (defn get-records
   [& {:keys
@@ -512,14 +511,13 @@
 
 
 
-
 ;----------------------------------------------------------
 ;
 ; debug stuff
 ;----------------------------------------------------------
 
 
-(let [
+( let [
       user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
       web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
       email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
@@ -531,29 +529,36 @@
       _              (link  user  "has login"  email-login )
       _              (link  user  "has login"  email-login2 )
       ]
-  (print-table [user])
+  (print user)
   [user
    web-session
    email-login
    email-login2]
   )
 
-;(print-table [{:a 1 :b 2} {}])
+(print-table [{:a 1 :b 2} {}])
 
 
-;(create "Users" {:name "Zubair2"})
+(insert-record "Users" {:name "Zubair2"})
 
-(count-records "Users")
-
-
+(count-records :table "Users")
 
 
+(cy/query (str
+                "CREATE (new_record:users"
+                " {props}) RETURN new_record;")
+               {:props {:name "John"}})
 
 
 
-(get-records :table "Users")
 
-;(get-node 34509)
+
+;(first (get-records :table "Users"))
+
+  (->
+  (get-records :table "Users")
+  print-table)
+  ;(get-node 34509)
 
 
 (comment neo-data
