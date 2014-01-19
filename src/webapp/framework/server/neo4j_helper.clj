@@ -26,7 +26,6 @@
 
 
 
-
 ;--------------------------------------------------------------
 ; connect to neo4j if available
 ;--------------------------------------------------------------
@@ -372,13 +371,13 @@
   (map
    (fn[rel-id]
      (let [rel     (nrl/get rel-id)
-           start   (id-from-node-url (:start rel))
+           start   (nc/to-id (:start rel))
            ]
        {
         :id      rel-id
         :type    (:type rel)
         :from   start
-        :to   (id-from-node-url (:end rel))
+        :to   (nc/to-id (:end rel))
         :is   (cond
                (= node-id start)  "outgoing"
                :else              "incoming")
