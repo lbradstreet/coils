@@ -1,25 +1,28 @@
 (ns webapp.framework.server.neo4j-helper
 
-  [:require [clojure.string :as str]]
-  (:require [clojurewerkz.neocons.rest])
+  (:require [clojurewerkz.neocons.rest :as nr])
   (:require [clojurewerkz.neocons.rest.nodes :as nn])
+  (:require [clojurewerkz.neocons.rest.labels :as nl])
   (:require [clojurewerkz.neocons.rest.relationships :as nrl])
   (:require [clojurewerkz.neocons.rest.cypher :as cy])
   (:require [clojurewerkz.neocons.rest.spatial :as nsp])
   (:require [clojurewerkz.neocons.rest.transaction :as tx])
   (:require [clojurewerkz.neocons.rest.conversion :as nc])
-  (:use [webapp-config.settings])
-  (:import [java.util.UUID])
 
+
+  [:require [clojure.string :as str]]
   (:require [cheshire.core             :as json]
             [clojurewerkz.neocons.rest :as rest]
             [clojurewerkz.support.http.statuses :refer :all]
             [clojurewerkz.neocons.rest.helpers  :refer :all]
             [clojurewerkz.neocons.rest.records  :refer :all])
+
+  (:import [java.util.UUID])
   (:import  [java.net URI URL]
             clojurewerkz.neocons.rest.Neo4JEndpoint)
-  (:use [clojure.pprint])
 
+  (:use [clojure.pprint])
+  (:use [webapp-config.settings])
 )
 
 
@@ -30,7 +33,7 @@
 ; connect to neo4j if available
 ;--------------------------------------------------------------
 (try
-  (clojurewerkz.neocons.rest/connect!
+  (nr/connect!
    "http://localhost:7474/db/data/")
   (catch Exception e
     (str "Error connecting to Neo4j: " (.getMessage e))))
@@ -516,7 +519,7 @@
 ;----------------------------------------------------------
 
 
-( let [
+(comment let [
       user           (node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
       web-session    (node  "CREATE (x:WebSession {cookie: \"dfggfdfgdgfd\"}) RETURN x;")
       email-login    (node  "CREATE (x:Authorisation {email: \"jack@hotmail.com\"}) RETURN x;")
@@ -535,15 +538,18 @@
    email-login2]
   )
 
-(print-table [{:a 1 :b 2} {}])
+(comment print-table [{:a 1 :b 2} {}])
 
 
-(insert-record "Users" {:name "Zubair2"})
-
-(count-records :table "Users")
+(comment node  "CREATE (y:User {name: \"Jack\"}) RETURN y;")
 
 
-(cy/query (str
+(comment insert-record "Users" {:name "Zubair2"})
+
+(comment count-records :table "Users")
+
+
+(comment cy/query (str
                 "CREATE (new_record:users"
                 " {props}) RETURN new_record;")
                {:props {:name "John"}})
@@ -554,7 +560,7 @@
 
 ;(first (get-records :table "Users"))
 
-  (->
+  (comment ->
   (get-records :table "Users")
   print-table)
   ;(get-node 34509)
@@ -573,7 +579,7 @@
 
 
 
- (relationships 34357)
+; (relationships 34357)
 
 
 
@@ -631,16 +637,19 @@
 
 
 
-
-(comment -> (cy/query (str
-             "CREATE (me:"
+(defn xxx [] (cy/tquery (str
+             "match (me:"
              "user"
-             " {props}) RETURN me;")
-            {:props {:name "fseed"}})
-    :data
-(first)
-(first)
-    )
+             " )  RETURN me;")
+            ))
+
+ ;(xxx)
+
+
+
+
+
 
 
 ;(cy/query "CREATE (x:User {name: \"Zubair\"}) RETURN x;")
+
