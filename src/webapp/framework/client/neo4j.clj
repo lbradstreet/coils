@@ -13,3 +13,15 @@
     ))
 
 
+
+
+
+
+(defmacro neo4j-nodes [cypher-str params return]
+  `(webapp.framework.client.neo4j.neo4j-nodes-fn
+    ~(encrypt cypher-str)
+    ~params
+    ~return
+    ))
+
+

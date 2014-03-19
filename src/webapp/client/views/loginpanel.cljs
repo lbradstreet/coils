@@ -7,6 +7,7 @@
         [cljs.core.async                    :as async :refer         [chan close!]]
         [clojure.string]
         [goog.net.cookies                   :as cookie]
+
     )
     (:use
         [webapp.framework.client.coreclient :only  [body-html new-dom-id debug popup hide-popovers
@@ -15,6 +16,7 @@
         [jayq.core                          :only  [$ css  append fade-out fade-in empty attr bind]]
         [webapp.framework.client.eventbus   :only  [do-action esb undefine-action]]
         [domina                             :only  [by-id value destroy! ]]
+        [webapp.framework.client.records :only  [Html Tree NeoNode map->NeoNode]]
   )
   (:require-macros
     [cljs.core.async.macros :refer                 [go alt!]])
@@ -251,6 +253,28 @@
 
 
 )
+
+
+
+(defrecord Goat2 [stuff things])
+
+(def a (Goat2.))
+
+(type a)
+
+(cljs.reader/register-tag-parser! "webapp.server.fns.Goat2" map->Goat2)
+(cljs.reader/register-tag-parser! "webapp.framework.server.records.NeoNode" map->NeoNode)
+
+
+ (go
+   (. js/console log (pr-str (type (:goat (<! (remote "abc" {} ))))))
+  )
+
+
+ (go
+   (. js/console log (pr-str (<! (remote "abc" {} ))))
+  )
+
 
 
 

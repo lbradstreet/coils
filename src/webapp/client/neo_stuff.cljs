@@ -25,16 +25,25 @@
     (:use-macros
         [webapp.framework.client.eventbus    :only [define-action redefine-action]]
         [webapp.framework.client.coreclient  :only [ns-coils defn-html on-click on-mouseover sql log neo4j]]
-        [webapp.framework.client.neo4j       :only [neo4j]]
+        [webapp.framework.client.neo4j       :only [neo4j neo4j-nodes]]
      )
 )
 (ns-coils 'webapp.client.neo-stuff)
 
 
 ; return the raw data for a neo4j node
-(comment go
-    (.log js/console (str (<! (neo4j "START x = node(17106) RETURN x" {} ))))
+( go
+    (.log js/console (str (<! (neo4j "START x = node(*) RETURN count(x) LIMIT 1" {} ))))
 )
+
+( go
+    (.log js/console (str (<! (neo4j-nodes "START x = node(*) WHERE x.y < 55.622 RETURN x LIMIT 1" {} "x"))))
+)
+
+
+
+
+
 
 
 ; return just the data for a neo4j node (still a lot!)

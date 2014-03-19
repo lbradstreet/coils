@@ -5,8 +5,10 @@
     [cljs.reader             :as reader]
     [goog.dom]
     [goog.events]
-    [crate.core :as crate]
-    [cljs.core.async :as async :refer [chan close!]]
+    [crate.core              :as crate]
+    [cljs.core.async         :as async :refer [chan close!]]
+    ;[clojure.edn :as edn]
+
   )
   (:require-macros
     [cljs.core.async.macros :refer [go alt!]])
@@ -95,6 +97,7 @@
 )
 
 
+
 (defn send-request2 [ address ]
       (let
       [
@@ -117,7 +120,9 @@
                                       response-text   (. target (getResponseText))
                                     ]
                                       (go
-                                        (>! ch (reader/read-string response-text))
+                                        (>! ch (reader/read-string
+                                                ; {:readers edn-readers}
+                                                response-text))
                                         (close! ch)
                                       ))
 

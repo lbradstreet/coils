@@ -10,6 +10,8 @@
   (:require [clojurewerkz.neocons.rest.nodes :as nn])
   (:require [clojurewerkz.neocons.rest.relationships :as nrl])
   (:require [clojurewerkz.neocons.rest.cypher :as cy])
+  (:require [clojure.edn :as edn])
+  (:use [clojure.pprint])
 )
 
 
@@ -42,6 +44,14 @@
 
 
 
+
+(defrecord Goat2 [stuff things])
+
+(def edn-readers2 {'webapp.server.fns.Goat2 map->Goat2})
+
+
+
+
 (defn !neo4j [{coded-cypher :cypher params :params}]
   (do
     (let [cypher          (decrypt coded-cypher)
@@ -51,6 +61,30 @@
       (cy/tquery cypher params)
     ))
   )
+
+
+
+
+
+
+(defn !neo4j_nodes [{coded-cypher :cypher
+                     params       :params
+                     return       :return}]
+  (do
+    (let [cypher          (decrypt coded-cypher)
+          lower           (.toLowerCase cypher)
+          ]
+      (println "Cypher from client: " coded-cypher " -> " cypher)
+      (nh/get-nodes   cypher  params  return)
+    ))
+  )
+
+
+
+(comment !neo4j_nodes {:cypher "START x = node(*) RETURN x LIMIT 1"
+               :params {}
+               :return "n"})
+
 
 
 

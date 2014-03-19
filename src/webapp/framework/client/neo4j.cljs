@@ -7,11 +7,11 @@
     (:use
         [webapp.framework.client.coreclient :only  [debug remote]]
         [webapp.framework.client.eventbus   :only  [do-action esb undefine-action]]
-  )
-  (:require-macros
-    [cljs.core.async.macros :refer                 [go alt!]]
-   )
-  (:use-macros
+    )
+    (:require-macros
+      [cljs.core.async.macros :refer                 [go alt!]]
+     )
+    (:use-macros
         [webapp.framework.client.eventbus :only    [redefine-action define-action]]
         [webapp.framework.client.coreclient :only  [ns-coils log]]
         [webapp.framework.client.neo4j :only       [neo4j]]
@@ -33,6 +33,21 @@
         {
          :cypher    cypher-str
          :params    params}))))
+
+
+
+;----------------------------------------------------------
+(defn neo4j-nodes-fn
+  "Call the server side neo4j function"
+  [cypher-str   params   return]
+  ;----------------------------------------------------------
+  (go
+   (<! (remote
+        "!neo4j_nodes"
+        {
+         :cypher    cypher-str
+         :params    params
+         :return    return}))))
 
 
 

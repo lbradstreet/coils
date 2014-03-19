@@ -1,14 +1,16 @@
 (ns webapp.framework.server.neo4j-helper
 
-  (:require [clojurewerkz.neocons.rest :as nr])
-  (:require [clojurewerkz.neocons.rest.nodes :as nn])
-  (:require [clojurewerkz.neocons.rest.labels :as nl])
+  (:require [clojurewerkz.neocons.rest               :as nr])
+  (:require [clojurewerkz.neocons.rest.nodes         :as nn])
+  (:require [clojurewerkz.neocons.rest.labels        :as nl])
   (:require [clojurewerkz.neocons.rest.relationships :as nrl])
-  (:require [clojurewerkz.neocons.rest.cypher :as cy])
-  (:require [clojurewerkz.neocons.rest.spatial :as nsp])
-  (:require [clojurewerkz.neocons.rest.transaction :as tx])
-  (:require [clojurewerkz.neocons.rest.conversion :as nc])
+  (:require [clojurewerkz.neocons.rest.cypher        :as cy])
+  (:require [clojurewerkz.neocons.rest.spatial       :as nsp])
+  (:require [clojurewerkz.neocons.rest.transaction   :as tx])
+  (:require [clojurewerkz.neocons.rest.conversion    :as nc])
+  (:require [clojurewerkz.neocons.rest.index         :as ni])
 
+  (:require [clojure.edn :as edn])
 
   [:require [clojure.string :as str]]
   (:require [cheshire.core             :as json]
@@ -17,6 +19,8 @@
             [clojurewerkz.neocons.rest.helpers  :refer :all]
             [clojurewerkz.neocons.rest.records  :refer :all])
 
+  (:use [webapp.framework.server.records])
+  (:import [webapp.framework.server.records NeoNode])
   (:import [java.util.UUID])
   (:import  [java.net URI URL]
             clojurewerkz.neocons.rest.Neo4JEndpoint)
@@ -623,33 +627,103 @@
 
 
 
-
 ;(neo4j-add "users" {:name "Zubair"})
 
 
 
 
-(comment neo-node-data
- (cy/tquery "CREATE (me:User {name: \"Zubair\"}) RETURN me;" {})
- "me"
- )
+ (cy/empty? (cy/tquery "MATCH n WHERE n.name='Puma' RETURN n;" {}))
 
 
 
 
-(defn xxx [] (cy/tquery (str
-             "match (me:"
-             "user"
-             " )  RETURN me;")
-            ))
+ (defn get-nodes [cypher   params  return-field]
+   (map
+    (fn [xxx]
+        (cond
+            (= (type return-field) java.lang.String)
+                (NeoNode. nil (:data (get xxx return-field)))
+            (= (type return-field) clojure.lang.PersistentVector)
+                (into {}  (map
+                    (fn[x]  {x (NeoNode. nil (:data (get xxx x)))})
+                    return-field))
+            :else
+               (type return-field)
+        )
+    )
+    (cy/tquery  cypher )
+    )
+   )
 
- ;(xxx)
+
+ ( get-nodes "START x = node(*) RETURN x LIMIT 1" {} "x")
+
+
+  (let [puma  (nn/create {:name "Puma"  :hq-location "Herzogenaurach, Germany"})
+        apple (nn/create {:name "Apple" :hq-location "Cupertino, CA, USA"})
+        idx   (nn/create-index "companies")]
+    (nn/delete-from-index (:id puma)  (:name idx))
+    (nn/delete-from-index (:id apple) (:name idx))
+    (nn/add-to-index (:id puma)  (:name idx) "country" "Germany")
+    (nn/add-to-index (:id apple) (:name idx) "country" "United States of America")
+    (println (cy/empty? (nn/query (:name idx) "country:*"))))
 
 
 
 
 
 
+  (def sample-map {:foo "bar" :bar "foo"})
 
-;(cy/query "CREATE (x:User {name: \"Zubair\"}) RETURN x;")
+(defn convert-sample-map-to-edn
+    "Converting a Map to EDN"
+    []
+    ;; yep, converting a map to EDN is that simple"
+    (prn-str sample-map))
 
+(println "Let's convert a map to EDN: " (convert-sample-map-to-edn))
+;=> Let's convert a map to EDN:  {:foo "bar", :bar "foo"}
+
+(println "Now let's covert the map back: " (edn/read-string (convert-sample-map-to-edn)))
+;=> Now let's covert the map back:  {:foo bar, :bar foo}
+
+
+
+
+(defrecord Goat [stuff things])
+
+(def sample-goat (->Goat "I love Goats", "Goats are awesome"))
+
+(defn convert-sample-goat-to-edn
+    "Converting a Goat to EDN"
+    []
+    (prn-str sample-goat))
+
+(println "Let's convert our defrecord Goat into EDN: " (convert-sample-goat-to-edn))
+
+
+
+
+
+(def edn-readers {'webapp.framework.server.neo4j_helper.Goat map->Goat})
+
+(defn convert-edn-to-goat
+    "Convert EDN back into a Goat. We will use the :readers option to pass through a map
+    of tags -> readers, so EDN knows how to handle our custom EDN tag."
+    []
+    (edn/read-string {:readers edn-readers} (convert-sample-goat-to-edn)))
+
+(println "Let's try converting EDN back to a Goat: " (convert-edn-to-goat))
+
+(keys (convert-edn-to-goat))
+
+
+    (edn/read-string {:readers edn-readers} (convert-sample-goat-to-edn))
+
+
+(defn alternative-edn-for-goat
+    "Creates a different edn format for the goat. Flattens the goat map into a sequence of keys and values"
+    [^Goat goat]
+    (str "#edn-example/Alt.Goat" (prn-str (mapcat identity goat))))
+
+(println "Lets convert our Goat to our custom EDN format: " (alternative-edn-for-goat sample-goat))
