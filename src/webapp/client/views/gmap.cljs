@@ -239,62 +239,55 @@
    (add-corner
     :position   google.maps.ControlPosition.RIGHT_CENTER
     :id         "right-center"
-    :html       (el
-                 :div {
-                       :style "width2: 30px; height2: 40px;
-                       background-color: white;
-                       opacity:0.6;
-                       margin2: 10px; border2: 20px;"
+    :html
+    (el
+     :div {
+           :style "width2: 30px; height2: 40px;
+           background-color: white;
+           opacity:0.6;
+           margin2: 10px; border2: 20px;"
 
-                       :onclick
-                       (fn[]
-                         (swap-section
-                          "bottom-left"
-                          (el :div {:style "border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;"}
-                              [
-                               (el :div {}
-                                   [
-                                    "<div style=''>
-                                    <div>Login and Join - coming soon</div>
+           :onclick
+           (fn[]
+             (swap-section
+              "bottom-left"
+              (el :div {:style "border: 10px solid lightgray;background-color: white; padding-bottom:50px; margin: 5px;"}
+                  [
+          (el :form {} [
+             (el :div {:class "form-group"} [
+              "<input  id='place-name-input'
+                       type='text'
+                       class='input-small form-control'
+                       placeholder='Name of place'>"
+              ])
 
+          (el :button {
+                       :id       "add-place-button"
+                       :type     "button"
+                       :class    "btn btn-primary"
+                       :style    "margin-left: 10px;"
+                       :text     "Add place"
+                       :onclick  #(do-action "add place name"
+                                             {
+                                                :place-name (value-of "place-name-input")
+                                                :lat        lat
+                                                :lng        lng
+                                              })})
 
-                                    <form id='picture-form' action='/file' method='post' enctype='multipart/form-data'>
-                                    <input id='file' name='file' type='file' accept='image/*' capture='camera'>
-                                    </input>
-                                    </form>
-                                    </div>
-                                    "
-                                    ])
-                               (el :div {
-                                         :id     "upload_file"
-                                         :text   "upload"
-                                         :onclick
-                                         (fn[]
+          (el :button {
+                       :type "button"
+                       :class "btn btn-info"
+                       :style "margin-left: 10px;"
+                       :text "Cancel"
+                       :onclick #(do-action "Cancel add place")})
 
-                                           (let [
-                                                 io   (goog.net.IframeIo.)
-                                                 ]
-                                             (goog.events.listen
-                                              io
-                                              goog.net.EventType/COMPLETE
-                                              (fn[e] (log "Uploaded")))
+        ])])))}
 
-                                             (. io sendFromForm
-                                                (find-el "picture-form")
-                                                (str
-                                                 ""
-                                                 "file"
-                                                 "?file=vvxvxfgdfgd"
-                                                 )))
-                                           )
-                                         })
-                               ])))}
+     [
+      "<h1 style='padding:15px;'>ME</h1>"
 
-                 [
-                  "<h1 style='padding:15px;'>ME</h1>"
-
-                  ]
-                 ))
+      ]
+     ))
 
 
 

@@ -81,9 +81,10 @@
 
 
 
-(comment !neo4j_nodes {:cypher "START x = node(*) RETURN x LIMIT 1"
-               :params {}
-               :return "n"})
+(comment !neo4j_nodes {:cypher (encrypt
+                         "create (u:User { email : { email2 }, title : 'Developer' }) return u")
+               :params {:email2 "zubairq@gmail.com"}
+               :return "u"})
 
 
 

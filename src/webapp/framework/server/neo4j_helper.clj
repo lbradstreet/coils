@@ -642,21 +642,23 @@
     (fn [xxx]
         (cond
             (= (type return-field) java.lang.String)
-                (NeoNode. nil (:data (get xxx return-field)))
+                (NeoNode. nil (merge {:neo-id  (:id (nn/fetch-from (:self (get xxx return-field))))}
+                                     (:data (get xxx return-field))))
             (= (type return-field) clojure.lang.PersistentVector)
                 (into {}  (map
-                    (fn[x]  {x (NeoNode. nil (:data (get xxx x)))})
+                    (fn[x]  {x (merge {:neo-id  (:id (nn/fetch-from (:self (get xxx return-field))))}
+                                      (:data (get xxx return-field)))})
                     return-field))
             :else
                (type return-field)
         )
     )
-    (cy/tquery  cypher )
+    (cy/tquery  cypher params )
     )
    )
 
 
- ( get-nodes "START x = node(*) RETURN x LIMIT 1" {} "x")
+ (comment  get-nodes "START x = node(*) RETURN x LIMIT 2" {} "x")
 
 
   (let [puma  (nn/create {:name "Puma"  :hq-location "Herzogenaurach, Germany"})

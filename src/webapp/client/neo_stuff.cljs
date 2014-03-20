@@ -36,9 +36,19 @@
     (.log js/console (str (<! (neo4j "START x = node(*) RETURN count(x) LIMIT 1" {} ))))
 )
 
-( go
-    (.log js/console (str (<! (neo4j-nodes "START x = node(*) WHERE x.y < 55.622 RETURN x LIMIT 1" {} "x"))))
-)
+
+
+
+( go (log (str (<!
+  (neo4j-nodes
+   "create (u:User { email : { email2 }, title : 'Developer' }) return u"
+   {:email2 "zubairq@gmail.com"} "u")))))
+
+
+( go (log (str (<!
+  (neo4j-nodes
+   "create (u:User { email : { email2 }, title : 'Developer' }) return u"
+   {:email2 "zubairq@gmail.com"} "u")))))
 
 
 
