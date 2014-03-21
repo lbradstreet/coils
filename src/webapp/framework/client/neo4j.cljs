@@ -19,8 +19,8 @@
     [cljs.core.async.macros :refer                 [go alt!]])
   (:use-macros
         [webapp.framework.client.eventbus :only    [redefine-action define-action]]
-        [webapp.framework.client.coreclient :only  [ns-coils defn-html on-click on-mouseover sql
-                                                    neo4j log]]
+        [webapp.framework.client.coreclient :only  [ns-coils makeit defn-html on-click on-mouseover sql defn-html
+                                                    defn-html2 neo4j log log-async]]
         [webapp.framework.client.interpreter :only [! !! !!!]]
      )
 )
@@ -149,3 +149,26 @@
                       :type "code"
                       })
 
+
+(defn add-to-simple-point-layer  [ item layer-name ]
+    (go
+        (<! (remote "!add-to-simple-point-layer"   {:node item :layer-name layer-name}))
+    )
+)
+
+
+(comment go
+     (<! (add-to-simple-point-layer {:name "bella centre" :x 0.12 :y 0.1} "ore2")))
+
+
+
+
+(defn find-names-within-distance [  layer-name x y km ]
+    (go
+        (<! (remote "!find-names-within-distance"   {:layer-name layer-name :x x :y y :dist-km km}))
+    )
+)
+
+
+(comment go
+     (log (<! (find-names-within-distance   "ore2"  0   0  1000))) )

@@ -2,7 +2,6 @@
   :dependencies [
                    [org.clojure/clojure "1.5.1"]
                    [org.clojure/google-closure-library-third-party "0.0-2029"]
-                   [org.clojure/tools.reader "0.7.10"]
                    [domina "1.0.1"]
                    [crate "0.2.4"]
                    [prismatic/dommy "0.1.1"]
@@ -16,8 +15,8 @@
                    [jayq "2.4.0"]
                    [clojurewerkz/neocons "2.0.0-beta3"]
                    [facts/speech-synthesis "1.0.0"]
-                   [org.clojure/clojurescript "0.0-2030"]
-                   [org.clojure/core.async "0.1.242.0-44b1e3-alpha"]
+                   [org.clojure/clojurescript "0.0-1820"]
+                   [org.clojure/core.async "0.1.0-SNAPSHOT"]
                    [rewrite-clj "0.2.0"]
                    [org.jasypt/jasypt "1.8"]
 
