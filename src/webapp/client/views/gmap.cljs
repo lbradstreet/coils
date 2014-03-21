@@ -270,8 +270,6 @@
                        :onclick  #(do-action "add place name"
                                              {
                                                 :place-name (value-of "place-name-input")
-                                                :lat        lat
-                                                :lng        lng
                                               })})
 
           (el :button {
